@@ -1,0 +1,16 @@
+INT MAIN(){
+	INT ID;    
+	FLOAT ID, ID;
+	ID = REAL;
+	ID = REAL;
+	
+ 
+        FOR (ID=ENTERO;ID < ENTERO; ID++){
+		ID = ID + REAL; 
+		ID = ID * ID;
+	}
+	ID = ID * REAL
+	COUT << TEXTO << ID <<ENDL;
+	COUT << TEXTO << ID <<ENDL;
+	RETURN ENTERO;
+}

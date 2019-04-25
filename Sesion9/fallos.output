@@ -1,0 +1,504 @@
+Terminales no usados en la gramática
+
+   SALIR
+
+
+Estado 13 conflictos: 1 reducción/reducción
+Estado 28 conflictos: 1 desplazamiento/reducción
+Estado 31 conflictos: 2 desplazamiento/reducción
+Estado 32 conflictos: 2 desplazamiento/reducción
+
+
+Gramática
+
+    0 $accept: lista_instrucciones $end
+
+    1 lista_instrucciones: instruccion
+    2                    | lista_instrucciones instruccion
+
+    3 instruccion: asignacion ';'
+    4            | alternativa
+    5            | bucle
+    6            | error ';'
+
+    7 asignacion: IDENTIFICADOR '=' expr
+    8           | IDENTIFICADOR '=' expr_logica
+
+    9 alternativa: IF expr_logica bloque
+   10            | IF expr_logica bloque ELSE bloque
+
+   11 bucle: WHILE expr_logica bloque
+
+   12 bloque: '{' lista_instrucciones '}'
+   13       | instruccion
+
+   14 expr: IDENTIFICADOR
+   15     | NUMERO
+   16     | expr '+' expr
+   17     | expr '*' expr
+
+   18 expr_logica: IDENTIFICADOR
+   19            | expr '<' expr
+   20            | expr '>' expr
+
+
+Terminales con las reglas donde aparecen
+
+$end (0) 0
+'*' (42) 17
+'+' (43) 16
+';' (59) 3 6
+'<' (60) 19
+'=' (61) 7 8
+'>' (62) 20
+'{' (123) 12
+'}' (125) 12
+error (256) 6
+NUMERO (258) 15
+SALIR (259)
+IDENTIFICADOR (260) 7 8 14 18
+IF (261) 9 10
+ELSE (262) 10
+WHILE (263) 11
+
+
+No terminales con las reglas donde aparecen
+
+$accept (17)
+    en la izquierda: 0
+lista_instrucciones (18)
+    en la izquierda: 1 2, en la derecha: 0 2 12
+instruccion (19)
+    en la izquierda: 3 4 5 6, en la derecha: 1 2 13
+asignacion (20)
+    en la izquierda: 7 8, en la derecha: 3
+alternativa (21)
+    en la izquierda: 9 10, en la derecha: 4
+bucle (22)
+    en la izquierda: 11, en la derecha: 5
+bloque (23)
+    en la izquierda: 12 13, en la derecha: 9 10 11
+expr (24)
+    en la izquierda: 14 15 16 17, en la derecha: 7 16 17 19 20
+expr_logica (25)
+    en la izquierda: 18 19 20, en la derecha: 8 9 10 11
+
+
+Estado 0
+
+    0 $accept: . lista_instrucciones $end
+
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+
+    lista_instrucciones  ir al estado 5
+    instruccion          ir al estado 6
+    asignacion           ir al estado 7
+    alternativa          ir al estado 8
+    bucle                ir al estado 9
+
+
+Estado 1
+
+    6 instruccion: error . ';'
+
+    ';'  desplazar e ir al estado 10
+
+
+Estado 2
+
+    7 asignacion: IDENTIFICADOR . '=' expr
+    8           | IDENTIFICADOR . '=' expr_logica
+
+    '='  desplazar e ir al estado 11
+
+
+Estado 3
+
+    9 alternativa: IF . expr_logica bloque
+   10            | IF . expr_logica bloque ELSE bloque
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 13
+
+    expr         ir al estado 14
+    expr_logica  ir al estado 15
+
+
+Estado 4
+
+   11 bucle: WHILE . expr_logica bloque
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 13
+
+    expr         ir al estado 14
+    expr_logica  ir al estado 16
+
+
+Estado 5
+
+    0 $accept: lista_instrucciones . $end
+    2 lista_instrucciones: lista_instrucciones . instruccion
+
+    $end           desplazar e ir al estado 17
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+
+    instruccion  ir al estado 18
+    asignacion   ir al estado 7
+    alternativa  ir al estado 8
+    bucle        ir al estado 9
+
+
+Estado 6
+
+    1 lista_instrucciones: instruccion .
+
+    $default  reduce usando la regla 1 (lista_instrucciones)
+
+
+Estado 7
+
+    3 instruccion: asignacion . ';'
+
+    ';'  desplazar e ir al estado 19
+
+
+Estado 8
+
+    4 instruccion: alternativa .
+
+    $default  reduce usando la regla 4 (instruccion)
+
+
+Estado 9
+
+    5 instruccion: bucle .
+
+    $default  reduce usando la regla 5 (instruccion)
+
+
+Estado 10
+
+    6 instruccion: error ';' .
+
+    $default  reduce usando la regla 6 (instruccion)
+
+
+Estado 11
+
+    7 asignacion: IDENTIFICADOR '=' . expr
+    8           | IDENTIFICADOR '=' . expr_logica
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 13
+
+    expr         ir al estado 20
+    expr_logica  ir al estado 21
+
+
+Estado 12
+
+   15 expr: NUMERO .
+
+    $default  reduce usando la regla 15 (expr)
+
+
+Estado 13
+
+   14 expr: IDENTIFICADOR .
+   18 expr_logica: IDENTIFICADOR .
+
+    error          reduce usando la regla 18 (expr_logica)
+    IDENTIFICADOR  reduce usando la regla 18 (expr_logica)
+    IF             reduce usando la regla 18 (expr_logica)
+    WHILE          reduce usando la regla 18 (expr_logica)
+    ';'            reduce usando la regla 14 (expr)
+    ';'            [reduce usando la regla 18 (expr_logica)]
+    '{'            reduce usando la regla 18 (expr_logica)
+    $default       reduce usando la regla 14 (expr)
+
+
+Estado 14
+
+   16 expr: expr . '+' expr
+   17     | expr . '*' expr
+   19 expr_logica: expr . '<' expr
+   20            | expr . '>' expr
+
+    '+'  desplazar e ir al estado 22
+    '*'  desplazar e ir al estado 23
+    '<'  desplazar e ir al estado 24
+    '>'  desplazar e ir al estado 25
+
+
+Estado 15
+
+    9 alternativa: IF expr_logica . bloque
+   10            | IF expr_logica . bloque ELSE bloque
+
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+    '{'            desplazar e ir al estado 26
+
+    instruccion  ir al estado 27
+    asignacion   ir al estado 7
+    alternativa  ir al estado 8
+    bucle        ir al estado 9
+    bloque       ir al estado 28
+
+
+Estado 16
+
+   11 bucle: WHILE expr_logica . bloque
+
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+    '{'            desplazar e ir al estado 26
+
+    instruccion  ir al estado 27
+    asignacion   ir al estado 7
+    alternativa  ir al estado 8
+    bucle        ir al estado 9
+    bloque       ir al estado 29
+
+
+Estado 17
+
+    0 $accept: lista_instrucciones $end .
+
+    $default  aceptar
+
+
+Estado 18
+
+    2 lista_instrucciones: lista_instrucciones instruccion .
+
+    $default  reduce usando la regla 2 (lista_instrucciones)
+
+
+Estado 19
+
+    3 instruccion: asignacion ';' .
+
+    $default  reduce usando la regla 3 (instruccion)
+
+
+Estado 20
+
+    7 asignacion: IDENTIFICADOR '=' expr .
+   16 expr: expr . '+' expr
+   17     | expr . '*' expr
+   19 expr_logica: expr . '<' expr
+   20            | expr . '>' expr
+
+    '+'  desplazar e ir al estado 22
+    '*'  desplazar e ir al estado 23
+    '<'  desplazar e ir al estado 24
+    '>'  desplazar e ir al estado 25
+
+    $default  reduce usando la regla 7 (asignacion)
+
+
+Estado 21
+
+    8 asignacion: IDENTIFICADOR '=' expr_logica .
+
+    $default  reduce usando la regla 8 (asignacion)
+
+
+Estado 22
+
+   16 expr: expr '+' . expr
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 30
+
+    expr  ir al estado 31
+
+
+Estado 23
+
+   17 expr: expr '*' . expr
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 30
+
+    expr  ir al estado 32
+
+
+Estado 24
+
+   19 expr_logica: expr '<' . expr
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 30
+
+    expr  ir al estado 33
+
+
+Estado 25
+
+   20 expr_logica: expr '>' . expr
+
+    NUMERO         desplazar e ir al estado 12
+    IDENTIFICADOR  desplazar e ir al estado 30
+
+    expr  ir al estado 34
+
+
+Estado 26
+
+   12 bloque: '{' . lista_instrucciones '}'
+
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+
+    lista_instrucciones  ir al estado 35
+    instruccion          ir al estado 6
+    asignacion           ir al estado 7
+    alternativa          ir al estado 8
+    bucle                ir al estado 9
+
+
+Estado 27
+
+   13 bloque: instruccion .
+
+    $default  reduce usando la regla 13 (bloque)
+
+
+Estado 28
+
+    9 alternativa: IF expr_logica bloque .
+   10            | IF expr_logica bloque . ELSE bloque
+
+    ELSE  desplazar e ir al estado 36
+
+    ELSE      [reduce usando la regla 9 (alternativa)]
+    $default  reduce usando la regla 9 (alternativa)
+
+
+Estado 29
+
+   11 bucle: WHILE expr_logica bloque .
+
+    $default  reduce usando la regla 11 (bucle)
+
+
+Estado 30
+
+   14 expr: IDENTIFICADOR .
+
+    $default  reduce usando la regla 14 (expr)
+
+
+Estado 31
+
+   16 expr: expr . '+' expr
+   16     | expr '+' expr .
+   17     | expr . '*' expr
+
+    '+'  desplazar e ir al estado 22
+    '*'  desplazar e ir al estado 23
+
+    '+'       [reduce usando la regla 16 (expr)]
+    '*'       [reduce usando la regla 16 (expr)]
+    $default  reduce usando la regla 16 (expr)
+
+
+Estado 32
+
+   16 expr: expr . '+' expr
+   17     | expr . '*' expr
+   17     | expr '*' expr .
+
+    '+'  desplazar e ir al estado 22
+    '*'  desplazar e ir al estado 23
+
+    '+'       [reduce usando la regla 17 (expr)]
+    '*'       [reduce usando la regla 17 (expr)]
+    $default  reduce usando la regla 17 (expr)
+
+
+Estado 33
+
+   16 expr: expr . '+' expr
+   17     | expr . '*' expr
+   19 expr_logica: expr '<' expr .
+
+    '+'  desplazar e ir al estado 22
+    '*'  desplazar e ir al estado 23
+
+    $default  reduce usando la regla 19 (expr_logica)
+
+
+Estado 34
+
+   16 expr: expr . '+' expr
+   17     | expr . '*' expr
+   20 expr_logica: expr '>' expr .
+
+    '+'  desplazar e ir al estado 22
+    '*'  desplazar e ir al estado 23
+
+    $default  reduce usando la regla 20 (expr_logica)
+
+
+Estado 35
+
+    2 lista_instrucciones: lista_instrucciones . instruccion
+   12 bloque: '{' lista_instrucciones . '}'
+
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+    '}'            desplazar e ir al estado 37
+
+    instruccion  ir al estado 18
+    asignacion   ir al estado 7
+    alternativa  ir al estado 8
+    bucle        ir al estado 9
+
+
+Estado 36
+
+   10 alternativa: IF expr_logica bloque ELSE . bloque
+
+    error          desplazar e ir al estado 1
+    IDENTIFICADOR  desplazar e ir al estado 2
+    IF             desplazar e ir al estado 3
+    WHILE          desplazar e ir al estado 4
+    '{'            desplazar e ir al estado 26
+
+    instruccion  ir al estado 27
+    asignacion   ir al estado 7
+    alternativa  ir al estado 8
+    bucle        ir al estado 9
+    bloque       ir al estado 38
+
+
+Estado 37
+
+   12 bloque: '{' lista_instrucciones '}' .
+
+    $default  reduce usando la regla 12 (bloque)
+
+
+Estado 38
+
+   10 alternativa: IF expr_logica bloque ELSE bloque .
+
+    $default  reduce usando la regla 10 (alternativa)

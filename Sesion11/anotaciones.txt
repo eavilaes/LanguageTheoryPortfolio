@@ -1,0 +1,13 @@
+start hace que todos los actuadores se pongan a "apagado" y los sensores se pongan a "vacío"
+
+la gramática puede empezar por:
+
+programa: zona1 SEPARADOR zona2
+zona1:   definicion
+       | zona1 definicion
+       ;
+definicion: --------
+	   | --------
+	   | --------
+	   | --------
+

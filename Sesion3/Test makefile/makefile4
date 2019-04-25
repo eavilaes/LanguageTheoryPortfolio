@@ -1,0 +1,10 @@
+LEX = flex
+CXX = g++
+simple: simple.o
+	$(CXX) -o simple simple.o
+simple.o: simple.cpp
+	$(CXX) -c simple.cpp
+simple.cpp: simple.l
+	$(LEX) -o simple.cpp simple.l
+clean:
+	rm -f *.cpp *.o

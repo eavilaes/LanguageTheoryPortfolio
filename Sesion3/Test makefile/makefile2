@@ -1,0 +1,6 @@
+programa: programa.o
+	g++ -o programa programa.o
+programa.o: programa.cpp
+	g++ -c programa.cpp
+clean:
+	rm -f *.o

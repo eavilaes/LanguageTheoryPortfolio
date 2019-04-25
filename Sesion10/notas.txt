@@ -1,0 +1,7 @@
+programa: primeraparte SEPARADOR segundaparte		#primeraparte es la parte de definiciones y asignaciones
+
+primeraparte: declaracion 
+	     | asignacion				#por ejemplo: msg = "Alarma. Alta probabilidad de incendio";
+	     | declaracion "con" asignacion		#los sensores tienen posicion y tag
+
+segundaparte: lista_de_escenarios			#puede tener 1 o más

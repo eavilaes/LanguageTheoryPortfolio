@@ -1,0 +1,7 @@
+OBJ = principal.o libreria1.o
+programa: $(OBJ)
+	g++ -o programa $(OBJ)
+principal.o: principal.cpp
+	g++ -c principal.cpp
+libreria1.o: libreria1.cpp
+	g++ -c libreria1.cpp
