@@ -1,18 +1,19 @@
-#fichero Makefile
+OBJ = expresiones.o lexico.o
 
-FUENTE = pruebaDSLP.cpp
+demo: $(OBJ) #segunda fase de la traducción. Código ejecutable
+	g++ -odemo $(OBJ)
 
-fin: prueba
-	./prueba 
-	
-prueba : prueba.o entorno_dspl.o 
-	g++ -oprueba entorno_dspl.o prueba.o -lallegro -lallegro_acodec -lallegro_audio -lallegro_color -lallegro_dialog -lallegro_font -lallegro_image -lallegro_main -lallegro_memfile -lallegro_physfs -lallegro_primitives -lallegro_ttf
+expresiones.o: expresiones.c #primera fase de la traducción (sintáctico)
+	g++ -c -oexpresiones.o expresiones.c
 
-entorno_dspl.o : entorno_dspl.cpp
-	g++ -c entorno_dspl.cpp
+lexico.o: lex.yy.c #primera fase de la traduccion (léxico)
+	g++ -c -olexico.o lex.yy.c
 
-prueba.o : $(FUENTE)
-	g++ -c -oprueba.o $(FUENTE) 
+expresiones.c: expresiones.y #sintáctico en C
+	bison -d -v -oexpresiones.c expresiones.y
 
-clean :
-	rm -f *.o	
+lex.yy.c: lexico.l #léxico en C
+	flex lexico.l
+
+clean:
+	rm -f *.o *.output
