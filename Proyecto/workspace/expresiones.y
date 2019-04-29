@@ -58,7 +58,7 @@ parte1:   declaracion ';'		{}
 	| declaracion ';' parte1	{}
 	| asignacion ';' parte1		{}
 	| sensor ';' parte1		{}
-	| error '\n'			{yyerrok;}
+	| error ';' {yyerrok;} parte1
 	;
 /*En la declaración se incluyen también actuadores*/
 declaracion: TIPO ID		{cout<<"declaración: "<<$2<<endl;}
@@ -69,7 +69,7 @@ asignacion:  ID '=' expr	{}
 expr:     ENTERO		{cout<<"numero entero: "<<$1<<endl;}
 	| REAL			{cout<<"numero real: "<<$1<<endl;}
 	| posicion		{}
-	| BOOL			{cout<<"verdadero/falso"<<endl;}
+	| BOOL			{cout<<"ON/OFF"<<endl;}
 	| ID			{cout<<"variable ya existente: "<<$1<<endl;}
 	| cadena		{cout<<endl;}
 	| expr '+' expr 	{$$=$1+$3;}
@@ -83,8 +83,7 @@ expr:     ENTERO		{cout<<"numero entero: "<<$1<<endl;}
 	;
 posicion: '<' expr ',' expr '>'	{cout<<"posicion"<<endl;}
 	;
-cadena:	  STRING		{cout<<"cadena de caracteres: \""<<yylval.c_cadena<<"\"";}
-	| STRING cadena		{cout<<yylval.c_cadena;}
+cadena:	  STRING		{cout<<"cadena de caracteres: \""<<$1<<"\"";}
 	;
 /*Las dos reglas de los sensores son válidas también para los actuadores, ya que se definen igual.*/
 sensor:   TIPO ID posicion cadena	{cout<<endl<<$1<<" "<<$2<<" posicionTipo<,> "<<endl;}
@@ -92,7 +91,7 @@ sensor:   TIPO ID posicion cadena	{cout<<endl<<$1<<" "<<$2<<" posicionTipo<,> "<
 	;
 parte2:	  escena ';'		{}
 	| escena ';' parte2	{}
-	| error '\n'		{yyerrok;}
+	| error ';' {yyerrok;} parte2
 	;
 escena:	SCENE ID '[' bloque ']'	{cout<<"Escena: "<<$2<<endl;}
 	;
