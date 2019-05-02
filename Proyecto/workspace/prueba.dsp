@@ -27,7 +27,21 @@ message Whatsapp;		#envío de mensajes
 
 #Segunda parte, definición del comportamiento del sistema en diferentes escenarios
 scene Winter [
-	start; pause 1;
+	start; pause;	
 	indoorTemp	18.2;	#el sensor indoorTemp ha detectado una temperatura de 18.2 grados
-
+	if indoorTemp < winterTemp
+	then [ 
+		Heat ON;   #encender calefacción
+		Whatsapp ON "Calefacción encendida";
+	];
+	pause 3;
+	Whatsapp OFF;	
+	indoorTemp	28.2;	#el sensor indoorTemp ha detectado una temperatura de 28.2 grados
+	if indoorTemp > winterTemp + 5
+	then [ 
+		Heat OFF;    #apagar calefacción
+		Whatsapp ON "Calefacción apagada";
+	];
+	pause;
+	Whatsapp OFF;	
 ];

@@ -38,7 +38,9 @@ ON						yylval.c_bool = 1;return BOOL;
 OFF						yylval.c_bool = 0;return BOOL;
 true						yylval.c_bool = 1;return BOOL; 
 false						yylval.c_bool = 0;return BOOL;
-[iI][fF]					return IF;
+if						return IF;
+then						return THEN;
+
 
 [<][=]						return LE;
 [>][=]						return GE;

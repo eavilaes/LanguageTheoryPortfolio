@@ -33,6 +33,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 %token <c_cadena> START
 %token <c_cadena> PAUSE
 %token <c_cadena> IF
+%token <c_cadena> THEN
 %token LE GE EQ NE	/* comparadores */
 %token AND OR NOT	/* operadores lógicos */
 
@@ -104,10 +105,12 @@ escena:	SCENE ID '[' bloque ']'	{cout<<"Escena: "<<$2<<endl;}
 bloque:   instr ';'		{}
 	| instr ';' bloque	{}
 	;
-instr:	  START			{cout<<"Start"<<endl;}
-	| PAUSE expr		{cout<<"Pausa"<<endl;}
-	| ID expr		{cout<<"Sensor "<<$1<<" ha detectado algo"<<endl;}
-	| IF comp		{}
+instr:	  START					{cout<<"Start"<<endl;}
+	| PAUSE expr				{cout<<"Pausa de tiempo"<<endl;}
+	| PAUSE					{cout<<"Pausa con tecla"<<endl;}
+	| ID expr				{cout<<"Sensor/activador "<<$1<<" ha detectado algo/activado o apagado"<<endl;}
+	| ID expr STRING		{cout<<"Activador de mensaje"<<endl;}
+	| IF comp THEN '[' bloque ']'	{cout<<"Bloque IF"<<endl;}
 	;
 comp:	  expr '<' expr	{cout<<"Menor que"<<endl;}
 	| expr LE expr	{cout<<"Menor o igual que"<<endl;}
