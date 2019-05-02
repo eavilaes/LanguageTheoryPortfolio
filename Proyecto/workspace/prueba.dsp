@@ -45,3 +45,17 @@ scene Winter [
 	pause;
 	Whatsapp OFF;	
 ];
+
+scene Fire [
+	start; pause 1;
+	S	100; #el sensor ha detectado la presencia de humo
+	if (S != 0)
+	then [
+		Whatsapp ON msg;			
+		repeat 2 [   #se producirán 4 pitidos en intervalos de 1 segundo
+			A ON;   
+			pause 1;
+		];
+		Whatsapp OFF;	
+	];
+];

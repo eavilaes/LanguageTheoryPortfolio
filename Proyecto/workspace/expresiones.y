@@ -22,6 +22,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 
 %start entrada /* regla de comienzo del lenguaje */
 
+//TODO revisar los tipos
 %token SEPARADOR /* separa la primera y la segunda parte del fichero de entrada */
 %token <c_cadena> TIPO	/* yylval.c_cadena incluye el tipo de la variable */
 %token <c_cadena> ID
@@ -34,6 +35,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 %token <c_cadena> PAUSE
 %token <c_cadena> IF
 %token <c_cadena> THEN
+%token <c_cadena> REPEAT
 %token LE GE EQ NE	/* comparadores */
 %token AND OR NOT	/* operadores lógicos */
 
@@ -109,8 +111,10 @@ instr:	  START					{cout<<"Start"<<endl;}
 	| PAUSE expr				{cout<<"Pausa de tiempo"<<endl;}
 	| PAUSE					{cout<<"Pausa con tecla"<<endl;}
 	| ID expr				{cout<<"Sensor/activador "<<$1<<" ha detectado algo/activado o apagado"<<endl;}
-	| ID expr STRING		{cout<<"Activador de mensaje"<<endl;}
-	| IF comp THEN '[' bloque ']'	{cout<<"Bloque IF"<<endl;}
+	| ID expr STRING			{cout<<"Activador de mensaje"<<endl;}
+	| ID expr ID				{cout<<"Activador de mensaje en variable"<<endl;}
+	| IF comp THEN '[' bloque ']'		{cout<<"Bloque IF"<<endl;}
+	| REPEAT expr '[' bloque ']'		{cout<<"Bloque REPEAT"<<endl;}
 	;
 comp:	  expr '<' expr	{cout<<"Menor que"<<endl;}
 	| expr LE expr	{cout<<"Menor o igual que"<<endl;}
@@ -121,6 +125,7 @@ comp:	  expr '<' expr	{cout<<"Menor que"<<endl;}
 	| comp AND comp	{cout<<"Comparaciones múltiples con AND"<<endl;}
 	| comp OR comp	{cout<<"Comparaciones múltiples con OR"<<endl;}
 	| NOT comp	{cout<<"Comparaciones con un NOT delante"<<endl;}
+	| '(' comp ')'	{cout<<"Paréntesis"<<endl;}
 	;
 %%
 
