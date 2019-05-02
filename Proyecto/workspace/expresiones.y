@@ -20,26 +20,32 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 
 %}
 
-%start entrada
+%start entrada /* regla de comienzo del lenguaje */
 
-%token SEPARADOR
-%token <c_cadena> TIPO
+%token SEPARADOR /* separa la primera y la segunda parte del fichero de entrada */
+%token <c_cadena> TIPO	/* yylval.c_cadena incluye el tipo de la variable */
 %token <c_cadena> ID
 %token <c_entero> ENTERO
 %token <c_real> REAL
 %token <c_bool> BOOL
-%token <c_cadena> STRING
+%token <c_cadena> STRING /* contenido de un string, sin las comillas */
 %token <c_cadena> SCENE
 %token <c_cadena> START
 %token <c_cadena> PAUSE
+%token <c_cadena> IF
+%token LE GE EQ NE	/* comparadores */
+%token AND OR NOT	/* operadores lógicos */
 
-%left '+' '-'
+%left OR		/* asociatividad con menor prioridad */
+%left AND
+%right NOT
+%left '<' LE '>' GE EQ NE
+%left '+' '-'		
 %left '*' '/' '%'
 %right '^'
+%left menos		/* asociatividad con mayor prioridad */
 
-%left menos
-
-%union {
+%union {	/* redefinición de YYSTYPE */
   int c_entero;
   float c_real;
   char c_cadena[50];
@@ -54,13 +60,13 @@ entrada: parte1	SEPARADOR parte2 {}
 	;
 parte1:   declaracion ';'		{}
 	| asignacion ';'		{}
-	| sensor ';'			{}
+	| sensor_actuador ';'		{}
 	| declaracion ';' parte1	{}
 	| asignacion ';' parte1		{}
-	| sensor ';' parte1		{}
+	| sensor_actuador ';' parte1	{}
 	| error ';' {yyerrok;} parte1
 	;
-/*En la declaración se incluyen también actuadores*/
+/*En la declaración se incluyen variables, sensores y actuadores*/
 declaracion: TIPO ID		{cout<<"declaración: "<<$2<<endl;}
 	   | declaracion ',' ID	{cout<<"declaración recursiva: "<<$3<<endl;}
 	   ;
@@ -86,7 +92,7 @@ posicion: '<' expr ',' expr '>'	{cout<<"posicion"<<endl;}
 cadena:	  STRING		{cout<<"cadena de caracteres: \""<<$1<<"\"";}
 	;
 /*Las dos reglas de los sensores son válidas también para los actuadores, ya que se definen igual.*/
-sensor:   TIPO ID posicion cadena	{cout<<endl<<$1<<" "<<$2<<" posicionTipo<,> "<<endl;}
+sensor_actuador:   TIPO ID posicion cadena	{cout<<endl<<$1<<" "<<$2<<" posicionTipo<,> "<<endl;}
 	| TIPO ID ID cadena		{cout<<endl<<$1<<" "<<$2<<" posicionEnVariable "<<endl;}
 	;
 parte2:	  escena ';'		{}
@@ -101,6 +107,17 @@ bloque:   instr ';'		{}
 instr:	  START			{cout<<"Start"<<endl;}
 	| PAUSE expr		{cout<<"Pausa"<<endl;}
 	| ID expr		{cout<<"Sensor "<<$1<<" ha detectado algo"<<endl;}
+	| IF comp		{}
+	;
+comp:	  expr '<' expr	{cout<<"Menor que"<<endl;}
+	| expr LE expr	{cout<<"Menor o igual que"<<endl;}
+	| expr '>' expr	{cout<<"Mayor que"<<endl;}
+	| expr GE expr	{cout<<"Mayor o igual que"<<endl;}
+	| expr EQ expr	{cout<<"Igual que"<<endl;}
+	| expr NE expr	{cout<<"Distinto que"<<endl;}
+	| comp AND comp	{cout<<"Comparaciones múltiples con AND"<<endl;}
+	| comp OR comp	{cout<<"Comparaciones múltiples con OR"<<endl;}
+	| NOT comp	{cout<<"Comparaciones con un NOT delante"<<endl;}
 	;
 %%
 

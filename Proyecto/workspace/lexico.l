@@ -29,12 +29,25 @@ light						|
 alarm						|
 switch						|
 message						strcpy(yylval.c_cadena,yytext);return TIPO;
+
 [%][%]						return SEPARADOR;
 scene						return SCENE;
 start						return START;
 pause						return PAUSE;
 ON						yylval.c_bool = 1;return BOOL;
 OFF						yylval.c_bool = 0;return BOOL;
+true						yylval.c_bool = 1;return BOOL; 
+false						yylval.c_bool = 0;return BOOL;
+[iI][fF]					return IF;
+
+[<][=]						return LE;
+[>][=]						return GE;
+[=][=]						return EQ;
+[!][=]						return NE;
+[&][&]						return AND;
+[|][|]						return OR;
+[!]						return NOT;
+
 {caracter}+({caracter}{digito})*		strcpy(yylval.c_cadena, yytext);return ID;
 [0-9]+						yylval.c_entero = atoi(yytext);return ENTERO;
 {digito}+[.]{digito}*([e][+-]?{digito}+)?	|
