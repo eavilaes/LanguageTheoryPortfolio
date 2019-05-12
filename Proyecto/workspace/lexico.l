@@ -24,11 +24,11 @@ float						|
 position					|
 string						|
 alarm						|
-switch						|
 message						strcpy(yylval.c_cadena,yytext);return TIPO;
 temperature					return TEMPERATURE;
 smoke						return SMOKE;
 light						return LIGHT;
+switch						return SWITCH;
 
 [%][%]						return SEPARADOR;
 scene						return SCENE;

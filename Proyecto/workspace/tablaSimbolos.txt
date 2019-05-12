@@ -8,6 +8,9 @@
 **  entero	p_Sensor		-2147483648	**
 **  entero	msg		1	**
 **  entero	A		1	**
-**  entero	Heat		1	**
 **  entero	Whatsapp		1	**
+******************************************
+
+
+Sensores sin inicializar
 ******************************************

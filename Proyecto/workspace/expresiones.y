@@ -33,7 +33,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 
 %token SEPARADOR /* separa la primera y la segunda parte del fichero de entrada */
 %token <c_cadena> TIPO	/* yylval.c_cadena incluye el tipo */
-%token TEMPERATURE SMOKE LIGHT
+%token TEMPERATURE SMOKE LIGHT SWITCH
 %token <c_cadena> ID
 %token <c_entero> ENTERO
 %token <c_real> REAL
@@ -72,10 +72,12 @@ entrada: parte1	SEPARADOR parte2 {}
 	;
 parte1:   declaracion ';'		{}
 	| asignacion ';'		{}
-	| sensor_actuador ';'		{}
+	| sensor ';'		{}
+	| actuador ';'		{}
 	| declaracion ';' parte1	{}
 	| asignacion ';' parte1		{}
-	| sensor_actuador ';' parte1	{}
+	| sensor ';' parte1	{}
+	| actuador ';' parte1 {}
 	| error ';' {yyerrok;} parte1
 	;
 /*En la declaración se incluyen variables, sensores y actuadores*/
@@ -112,13 +114,17 @@ posicion: '<' expr ',' expr '>'	{datoSens->posY=$2;datoSens->posX=$4;cout<<"****
 	;
 cadena:	  STRING		{strcpy(datoSens->alias,$1);}
 	;
-/*Las dos reglas de los sensores son válidas también para los actuadores, ya que se definen igual.*/
-sensor_actuador:   TEMPERATURE ID posicion cadena {datoSens->tipo=4; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
+
+sensor:   TEMPERATURE ID posicion cadena {datoSens->tipo=4; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
 	| SMOKE ID posicion cadena	{datoSens->tipo=5; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
 	| LIGHT ID posicion cadena	{datoSens->tipo=6; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
 	| TEMPERATURE ID ID cadena	{datoSens->tipo=4; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
 	| SMOKE ID ID cadena		{datoSens->tipo=5; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
 	| LIGHT ID ID cadena		{datoSens->tipo=6; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
+	;
+actuador: SWITCH ID posicion cadena {datoSens->tipo=8; strcpy(datoSens->nombre,$2); datoSens->inicializado=true;tablaSens->insertar(datoSens);}
+	| SWITCH ID ID cadena
+
 	;
 parte2:	  escena ';'		{}
 	| escena ';' parte2	{}
@@ -192,15 +198,18 @@ int main(int argc, char *argv[]){
 		sal << "void inicio(){\n";
 		sens *aux = tablaSens->getPrimero();
 		while(aux!=NULL){
-			if(aux->elem.inicializado==true){
+			if(aux->elem.inicializado==true && aux->elem.tipo==TIPO_TEMPERATURE || aux->elem.tipo==TIPO_SMOKE ||aux->elem.tipo==TIPO_LIGHT){
 				sal << "	entornoPonerSensor(" << aux->elem.posY << "," << aux->elem.posX << ",";
 				if(aux->elem.tipo==TIPO_TEMPERATURE) sal<<"S_temperature,";
 				else if(aux->elem.tipo==TIPO_SMOKE) sal<<"S_smoke,";
 				else if(aux->elem.tipo==TIPO_LIGHT) sal<<"S_light,";
 				sal << "0,\"" << aux->elem.alias << "\");\n"; //TODO cambiar el 0 por el numero que sea
+			}else if(aux->elem.inicializado==true && aux->elem.tipo==TIPO_SWITCH){
+				sal << "	entornoPonerAct_Switch(" << aux->elem.posY << "," << aux->elem.posX << ",false," << "\"" << aux->elem.alias << "\");\n";
 			}
 			aux=aux->sig;
 		}
+		sal << "	entornoBorrarMensaje();\n";
 		sal <<"}\n\n";
 
 		//******Zona de debug******
@@ -224,6 +233,13 @@ int main(int argc, char *argv[]){
 			n=n->sig;
 		}
 			tabla << "******************************************" << endl;
+		tabla << "\n\nSensores sin inicializar\n******************************************" << endl;
+		aux = tablaSens->getPrimero();
+		while(aux!=NULL){
+			if(aux->elem.inicializado=false)
+				tabla << aux->elem.nombre << "\n";
+			aux=aux->sig;
+		}
 	}else
 		printf("Error en la llamada. Ejemplo: %s ficheroEntrada ficheroSalida\n", argv[0]);
 	return 0;

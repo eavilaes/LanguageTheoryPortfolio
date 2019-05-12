@@ -17,5 +17,7 @@ using namespace std;
 void inicio(){
 	entornoPonerSensor(25,25,S_temperature,0,"T1");
 	entornoPonerSensor(250,250,S_smoke,0,"SH");
+	entornoPonerAct_Switch(480,420,false,"CA");
+	entornoBorrarMensaje();
 }
 
