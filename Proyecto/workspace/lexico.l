@@ -23,12 +23,12 @@ int						|
 float						|
 position					|
 string						|
-temperature					|
-smoke						|
-light						|
 alarm						|
 switch						|
 message						strcpy(yylval.c_cadena,yytext);return TIPO;
+temperature					return TEMPERATURE;
+smoke						return SMOKE;
+light						return LIGHT;
 
 [%][%]						return SEPARADOR;
 scene						return SCENE;
