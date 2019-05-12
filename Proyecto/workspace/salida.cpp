@@ -15,7 +15,7 @@ using namespace std;
  * en una situación inicial, es decir, los actuadores de tipo switch apagados
  * y los sensores sin ningún valor captado*/
 void inicio(){
-	entornoPonerSensor(-2147483648,21,S_temperature,0,"T1");
+	entornoPonerSensor(25,25,S_temperature,0,"T1");
 	entornoPonerSensor(250,250,S_smoke,0,"SH");
 }
 

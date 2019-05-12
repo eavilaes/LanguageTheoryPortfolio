@@ -9,7 +9,7 @@
 
 using namespace std;
 
-bool real=false;
+bool entero=false, real=false;
 bool error=false;
 Tabla *tablaVar = (Tabla*)malloc(sizeof(Tabla));
 TablaSens *tablaSens = (TablaSens*)malloc(sizeof(TablaSens));
@@ -79,16 +79,25 @@ parte1:   declaracion ';'		{}
 	| error ';' {yyerrok;} parte1
 	;
 /*En la declaración se incluyen variables, sensores y actuadores*/
-declaracion: TIPO ID		{cout<<"declaración: "<<$2<<endl;}
-	   | declaracion ',' ID	{cout<<"declaración recursiva: "<<$3<<endl;}
+declaracion: TIPO ID		{strcpy(datoVar->nombre,$2);datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO verificar datoVar->tipo
+	   | declaracion ',' ID	{strcpy(datoVar->nombre,$3);datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO(2)
 	   ;
-asignacion:  ID '=' expr	{}
+asignacion:  ID '=' expr	{tablaVar->buscar($1,datoVar);if(strcmp(datoVar->nombre,$1)==0){
+					if(entero) datoVar->valor.valor_entero=$3;
+					else if(real) datoVar->valor.valor_real=$3;
+					else datoVar->valor.valor_bool=$3;
+					datoVar->inicializado=true;tablaVar->insertar(datoVar);
+				}entero=false;real=false;}
 	   ;
-expr:     ENTERO		{$$=$1;}
-	| REAL			{$$=$1;}
+expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
+	| REAL			{$$=$1;real=true;datoVar->tipo=1;}
 	| posicion		{}
-	| BOOL			{cout<<"ON/OFF"<<endl;}
-	| ID			{cout<<"variable ya existente: "<<$1<<endl;}
+	| BOOL			{$$=yylval.c_bool;}
+	| ID			{if(tablaVar->buscar($1,datoVar)){
+						if(datoVar->tipo==0){ $$=datoVar->valor.valor_entero; entero=true;}
+						else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
+						else cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida" << endl;
+					}}
 	| cadena		{cout<<endl;}
 	| expr '+' expr 	{$$=$1+$3;}
 	| expr '-' expr 	{$$=$1-$3;}
@@ -99,7 +108,7 @@ expr:     ENTERO		{$$=$1;}
 	|'-' expr %prec menos	{$$= -$2;}
 	|'(' expr ')'		{$$=$2;}
 	;
-posicion: '<' expr ',' expr '>'	{datoSens->posY=$2;datoSens->posX=$4;}
+posicion: '<' expr ',' expr '>'	{datoSens->posY=$2;datoSens->posX=$4;cout<<"***************"<<$2<<" "<<$4<<endl;}
 	;
 cadena:	  STRING		{strcpy(datoSens->alias,$1);}
 	;
@@ -165,7 +174,7 @@ int main(int argc, char *argv[]){
 		extern TablaSens *tablaSens;
 
 		yyparse();
-
+		fclose(yyin);
 		//Cabecera del fichero de salida
 		sal << "//============================================================================\n";
 		sal << "// Name		: " << argv[2] << "\n";
@@ -193,7 +202,28 @@ int main(int argc, char *argv[]){
 			aux=aux->sig;
 		}
 		sal <<"}\n\n";
-		fclose(yyin);
+
+		//******Zona de debug******
+		ofstream tabla ("tablaSimbolos.txt", std::ofstream::trunc);
+		nodo *n = tablaVar->getPrimero();
+		tabla << "******************************************" << endl;
+		tabla << "**  TIPO	NOMBRE		VALOR	**" << endl;
+		tabla << "******************************************" << endl;
+		while(n!=NULL){
+			if(n->elem.tipo==0){
+			tabla << "**  entero	"; tabla<< n->elem.nombre; tabla << "		"; tabla<<n->elem.valor.valor_entero; tabla<<"	**\n";
+			}else if(n->elem.tipo==1){
+			tabla << "**  real	"; tabla<< n->elem.nombre; tabla << "		"; tabla<<n->elem.valor.valor_real; tabla<<"	**\n";
+			}else if(n->elem.tipo==2){
+				if(n->elem.valor.valor_bool==false){
+			tabla << "**  lógico	"; tabla<< n->elem.nombre; tabla << "		false	**\n";
+				}else{
+			tabla << "**  lógico	"; tabla<< n->elem.nombre; tabla << "		true	**\n";
+			}
+			}
+			n=n->sig;
+		}
+			tabla << "******************************************" << endl;
 	}else
 		printf("Error en la llamada. Ejemplo: %s ficheroEntrada ficheroSalida\n", argv[0]);
 	return 0;

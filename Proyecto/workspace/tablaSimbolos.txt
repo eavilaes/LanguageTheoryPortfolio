@@ -1,0 +1,13 @@
+******************************************
+**  TIPO	NOMBRE		VALOR	**
+******************************************
+**  entero	f		20	**
+**  entero	c		4	**
+**  entero	winterTemp		937859520	**
+**  entero	summerTemp		1103364096	**
+**  entero	p_Sensor		-2147483648	**
+**  entero	msg		1	**
+**  entero	A		1	**
+**  entero	Heat		1	**
+**  entero	Whatsapp		1	**
+******************************************
