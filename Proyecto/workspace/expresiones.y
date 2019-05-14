@@ -82,8 +82,11 @@ parte1:   declaracion ';'		{}
 /*En la declaración se incluyen variables, sensores y actuadores*/
 declaracion: INT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=0;datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO verificar datoVar->tipo
 	   | FLOAT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=1;datoVar->inicializado=false;tablaVar->insertar(datoVar);}
-	   | STRING ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=3;datoVar->inicializado=false;tablaVar->insertar(datoVar);cout<<"string\n";}
+	   | STRING ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=3;datoVar->inicializado=false;tablaVar->insertar(datoVar);}
 	   | declaracion ',' ID	{strcpy(datoVar->nombre,$3);datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO(2)
+	   | POSITION ID	{}//No se hace nada, porque se hace en la regla "posicion", pero se pone para evitar error sintáctico
+	   | ALARM ID		{}
+	   | MESSAGE ID		{}
 	   ;
 asignacion:  ID '=' expr	{tablaVar->buscar($1,datoVar);if(strcmp(datoVar->nombre,$1)==0){
 					if(entero) datoVar->valor.valor_entero=$3;
