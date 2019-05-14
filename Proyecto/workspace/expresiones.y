@@ -137,7 +137,7 @@ parte2:	  escena ';'		{}
 	| escena ';' parte2	{}
 	| error ';' {yyerrok;} parte2
 	;
-escena:	SCENE ID '[' bloque ']'	{}
+escena:	SCENE ID '[' bloque ']'	{datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);}
 	;
 bloque:   instr ';'		{}
 	| instr ';' bloque	{}
@@ -223,11 +223,31 @@ int main(int argc, char *argv[]){
 		//Main
 		sal << "int main(){\n";
 		sal << "	if(entornoIniciar()){\n";
-
+		inst *ins = tablaInst->getPrimero();
+		while(ins!=NULL){
+			switch(ins->elem.tipo){
+				case 0:
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					break;
+				case 5:
+					sal << "	entornoPonerEscenario(\"" << ins->elem.valor.valor_cadena << "\");\n";
+					break;
+				default:
+					cout << "ERROR. Tipo de instrucción no reconocido." << endl;
+			}
+			ins=ins->sig;
+		}
 		sal << "}";
 
 
-		//******Zona de debug******
+		//************************************************************Zona de debug************************************************************
 		bool debug=true;
 		if(debug){
 		ofstream tabla ("tablaSimbolos.txt", std::ofstream::trunc);
@@ -273,12 +293,12 @@ int main(int argc, char *argv[]){
 		tabla << "******************************************" << endl;
 		//----LISTA DE INSTRUCCIONES----
 		tabla << "\n\nInstrucciones \n******************************************" << endl;
-		inst *in = tablaInst->getPrimero();
-		while(in!=NULL){
-			tabla << "Tipo: " << in->elem.tipoInst << "\n";
-			in=in->sig;
+		ins = tablaInst->getPrimero();
+		while(ins!=NULL){
+			tabla << ins->elem.tipo << endl;
+			ins=ins->sig;
 		}
-		tabla << "******************************************" << endl;
+		//tabla << "******************************************" << endl;
 		}//debug
 
 

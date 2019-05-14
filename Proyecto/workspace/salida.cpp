@@ -23,4 +23,6 @@ void inicio(){
 
 int main(){
 	if(entornoIniciar()){
+	entornoPonerEscenario("Winter");
+	entornoPonerEscenario("Fire");
 }
