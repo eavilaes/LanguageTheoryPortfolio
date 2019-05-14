@@ -83,13 +83,13 @@ parte1:   declaracion ';'		{}
 	| error ';' {yyerrok;} parte1
 	;
 /*En la declaración se incluyen variables, sensores y actuadores*/
-declaracion: INT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=0;datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO verificar datoVar->tipo
+declaracion: INT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=0;datoVar->inicializado=false;tablaVar->insertar(datoVar);}
 	   | FLOAT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=1;datoVar->inicializado=false;tablaVar->insertar(datoVar);}
 	   | STRING ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=3;datoVar->inicializado=false;tablaVar->insertar(datoVar);}
-	   | declaracion ',' ID	{strcpy(datoVar->nombre,$3);datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO(2)
+	   | declaracion ',' ID	{strcpy(datoVar->nombre,$3);datoVar->inicializado=false;tablaVar->insertar(datoVar);}
 	   | POSITION ID	{}//No se hace nada, porque se hace en la regla "posicion", pero se pone para evitar error sintáctico
-	   | ALARM ID		{}
-	   | MESSAGE ID		{}
+	   | ALARM ID		{strcpy(datoSens->nombre, $2);datoSens->tipo=7;datoSens->inicializado=false;tablaSens->insertar(datoSens);}
+	   | MESSAGE ID		{strcpy(datoSens->nombre, $2);datoSens->tipo=9;datoSens->inicializado=false;tablaSens->insertar(datoSens);}
 	   ;
 asignacion:  ID '=' expr	{tablaVar->buscar($1,datoVar);if(strcmp(datoVar->nombre,$1)==0){
 					if(entero) datoVar->valor.valor_entero=$3;
@@ -137,16 +137,25 @@ parte2:	  escena ';'		{}
 	| escena ';' parte2	{}
 	| error ';' {yyerrok;} parte2
 	;
-escena:	SCENE ID '[' bloque ']'	{datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);}
+escena:	SCENE ID {datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);} '[' bloque ']'	
 	;
 bloque:   instr ';'		{}
 	| instr ';' bloque	{}
 	;
-instr:	  START					{}
-	| PAUSE expr				{}
+instr:	  START					{datoInst->tipo=4;tablaInst->insertar(datoInst);}
+	| PAUSE expr				{datoInst->tipo=6;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}
 	| PAUSE					{}
-	| ID expr				{}
-	| ID expr CADENA			{}
+	| ID expr				{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+							if(datoSens->tipo==4) datoInst->valor.valor_real=$2;
+							else if(datoSens->tipo==5) datoInst->valor.valor_entero=$2;
+							else if(datoSens->tipo==8 || datoSens->tipo==7) datoInst->valor.valor_bool=$2;
+							else if(datoSens->tipo==9){} //Para evitar conflictos. La otra regla también se ejecuta.
+							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
+						tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
+	| ID expr CADENA			{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena);
+							tablaInst->insertar(datoInst);
+						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
 	| ID expr ID				{}
 	| IF comp THEN '[' bloque ']'		{}
 	| REPEAT expr '[' bloque ']'		{}
@@ -211,7 +220,7 @@ int main(int argc, char *argv[]){
 				if(aux->elem.tipo==TIPO_TEMPERATURE) sal<<"S_temperature,";
 				else if(aux->elem.tipo==TIPO_SMOKE) sal<<"S_smoke,";
 				else if(aux->elem.tipo==TIPO_LIGHT) sal<<"S_light,";
-				sal << "0,\"" << aux->elem.alias << "\");\n"; //TODO cambiar el 0 por el numero que sea
+				sal << "0,\"" << aux->elem.alias << "\");\n";
 			}else if(aux->elem.inicializado==true && aux->elem.tipo==TIPO_SWITCH){
 				sal << "	entornoPonerAct_Switch(" << aux->elem.posY << "," << aux->elem.posX << ",false," << "\"" << aux->elem.alias << "\");\n";
 			}
@@ -224,20 +233,33 @@ int main(int argc, char *argv[]){
 		sal << "int main(){\n";
 		sal << "	if(entornoIniciar()){\n";
 		inst *ins = tablaInst->getPrimero();
+		tipo_datoTSens *datoSe = (tipo_datoTSens*)malloc(sizeof(tipo_datoTSens));
 		while(ins!=NULL){
 			switch(ins->elem.tipo){
-				case 0:
+				case 0:		//asignacion
+					tablaSens->buscar(ins->elem.ref, datoSe);
+					sal << "	entornoPonerSensor(" << datoSe->posY << "," << datoSe->posX << ",";
+						if(datoSe->tipo==TIPO_TEMPERATURE) sal<<"S_temperature," << ins->elem.valor.valor_real;
+						else if(datoSe->tipo==TIPO_SMOKE) sal<<"S_smoke," << ins->elem.valor.valor_entero;
+						else if(datoSe->tipo==TIPO_LIGHT) sal<<"S_light," << ins->elem.valor.valor_real;
+						else cout << "Error al actualizar el valor de un sensor. No es temp, smoke ni light. Es tipo " << datoSe->tipo << endl;
+						sal << ",\"" << datoSe->alias << "\");\n";
 					break;
-				case 1:
+				case 1:		//ON
 					break;
-				case 2:
+				case 2:		//OFF
 					break;
-				case 3:
+				case 3:		//pause sin tiempo
+					sal << "	entornoPulsarTecla();\n";
 					break;
-				case 4:
+				case 4:		//start
+					sal << "	inicio();\n";
 					break;
-				case 5:
+				case 5:		//scene
 					sal << "	entornoPonerEscenario(\"" << ins->elem.valor.valor_cadena << "\");\n";
+					break;
+				case 6:		//pause con tiempo
+					sal << "	entornoPausa(" << ins->elem.valor.valor_entero << ");\n";
 					break;
 				default:
 					cout << "ERROR. Tipo de instrucción no reconocido." << endl;
