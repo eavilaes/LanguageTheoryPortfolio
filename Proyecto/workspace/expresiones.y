@@ -148,8 +148,7 @@ instr:	  START					{datoInst->tipo=4;tablaInst->insertar(datoInst);}
 	| ID expr				{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==4) datoInst->valor.valor_real=$2;
 							else if(datoSens->tipo==5) datoInst->valor.valor_entero=$2;
-							else if(datoSens->tipo==8 || datoSens->tipo==7) datoInst->valor.valor_bool=$2;
-							else if(datoSens->tipo==9){} //Para evitar conflictos. La otra regla también se ejecuta.
+							else if(datoSens->tipo==8 || datoSens->tipo==7 || datoSens->tipo==9) datoInst->valor.valor_bool=$2;
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
 						tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
 	| ID expr CADENA			{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
@@ -241,6 +240,8 @@ int main(int argc, char *argv[]){
 					if(datoSe->tipo==TIPO_SWITCH && ins->elem.valor.valor_bool==true){
 						sal << "	entornoPonerAct_Switch(" << datoSe->posY << "," << datoSe->posX << ",true," << "\"" << datoSe->alias << "\");\n";
 					}else if(datoSe->tipo==TIPO_SWITCH && ins->elem.valor.valor_bool==false){
+						sal << "	entornoPonerAct_Switch(" << datoSe->posY << "," << datoSe->posX << ",false," << "\"" << datoSe->alias << "\");\n";
+					}else if(datoSe->tipo==TIPO_MESSAGE && strcmp(ins->elem.valor.valor_cadena,"")==0){
 						sal << "	entornoBorrarMensaje();\n";
 					}else if(datoSe->tipo==TIPO_MESSAGE){
 						sal << "	entornoMostrarMensaje(\"" << ins->elem.valor.valor_cadena << "\");\n";

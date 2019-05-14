@@ -30,17 +30,17 @@ int main(){
 	entornoPonerAct_Switch(480,420,true,"CA");
 	entornoMostrarMensaje("Calefacción encendida");
 	entornoPausa(3);
-	entornoMostrarMensaje("");
-	entornoPonerSensor(25,25,S_temperature,28.2,"T1");
 	entornoBorrarMensaje();
+	entornoPonerSensor(25,25,S_temperature,28.2,"T1");
+	entornoPonerAct_Switch(480,420,false,"CA");
 	entornoMostrarMensaje("Calefacción apagada");
 	entornoPulsarTecla();
-	entornoMostrarMensaje("Calefacción apagada");
+	entornoBorrarMensaje();
 	entornoPonerEscenario("Fire");
 	inicio();
 	entornoPausa(1);
 	entornoPonerSensor(250,250,S_smoke,100,"SH");
 	entornoPonerSensor(250,250,,"SH");
 	entornoPausa(1);
-	entornoMostrarMensaje("");
+	entornoBorrarMensaje();
 }
