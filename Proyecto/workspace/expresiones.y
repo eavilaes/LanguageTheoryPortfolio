@@ -231,6 +231,7 @@ int main(int argc, char *argv[]){
 		bool debug=true;
 		if(debug){
 		ofstream tabla ("tablaSimbolos.txt", std::ofstream::trunc);
+		//----TABLA DE VARIABLES----
 		nodo *n = tablaVar->getPrimero();
 		tabla << "******************************************" << endl;
 		tabla << "**  TIPO	NOMBRE		VALOR	**" << endl;
@@ -252,6 +253,7 @@ int main(int argc, char *argv[]){
 			n=n->sig;
 		}
 			tabla << "******************************************" << endl;
+		//----SENSORES SIN INICIALIZAR----
 		tabla << "\n\nSensores sin inicializar\n******************************************" << endl;
 		aux = tablaSens->getPrimero();
 		while(aux!=NULL){
@@ -259,6 +261,8 @@ int main(int argc, char *argv[]){
 				tabla << aux->elem.nombre << "\n";
 			aux=aux->sig;
 		}
+		tabla << "******************************************" << endl;
+		//----SENSORES INICIALIZADOS----
 		tabla << "\n\nSensores \n******************************************" << endl;
 		aux = tablaSens->getPrimero();
 		while(aux!=NULL){
@@ -266,6 +270,15 @@ int main(int argc, char *argv[]){
 				tabla << aux->elem.tipo << "	" << aux->elem.nombre  << "\n";
 			aux=aux->sig;
 		}
+		tabla << "******************************************" << endl;
+		//----LISTA DE INSTRUCCIONES----
+		tabla << "\n\nInstrucciones \n******************************************" << endl;
+		inst *in = tablaInst->getPrimero();
+		while(in!=NULL){
+			tabla << "Tipo: " << in->elem.tipoInst << "\n";
+			in=in->sig;
+		}
+		tabla << "******************************************" << endl;
 		}//debug
 
 
