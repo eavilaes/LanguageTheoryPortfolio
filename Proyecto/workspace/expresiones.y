@@ -5,6 +5,7 @@
 #include <cmath>
 #include "tabla.h"
 #include "tablaSens.h"
+#include "tablaInst.h"
 #include <string.h>
 
 using namespace std;
@@ -13,8 +14,10 @@ bool entero=false, real=false;
 bool error=false;
 Tabla *tablaVar = (Tabla*)malloc(sizeof(Tabla));
 TablaSens *tablaSens = (TablaSens*)malloc(sizeof(TablaSens));
+TablaInst *tablaInst = (TablaInst*)malloc(sizeof(TablaInst));
 tipo_datoTS *datoVar = (tipo_datoTS*)malloc(sizeof(tipo_datoTS));
 tipo_datoTSens *datoSens = (tipo_datoTSens*)malloc(sizeof(tipo_datoTSens));
+tipo_datoTInst *datoInst = (tipo_datoTInst*)malloc(sizeof(tipo_datoTInst));
 union tipo_valor valor;
 
 extern int n_lineas;
@@ -182,6 +185,7 @@ int main(int argc, char *argv[]){
 		n_lineas=0;
 		extern Tabla *tablaVar;
 		extern TablaSens *tablaSens;
+		extern TablaInst *tablaInst;
 
 		yyparse();
 		fclose(yyin);

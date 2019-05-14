@@ -1,4 +1,4 @@
-OBJ = expresiones.o lexico.o tabla.o tablaSens.o
+OBJ = expresiones.o lexico.o tabla.o tablaSens.o tablaInst.o
 
 demo: $(OBJ) #segunda fase de la traducción. Código ejecutable
 	g++ -odemo $(OBJ)
@@ -14,6 +14,9 @@ tabla.o: tabla.c #tabla de símbolos para las variables
 
 tablaSens.o: tablaSens.c
 	g++ -c -otablaSens.o tablaSens.c
+
+tablaInst.o: tablaInst.c
+	g++ -c -otablaInst.o tablaInst.c
 
 expresiones.c: expresiones.y #sintáctico en C
 	bison -d -v -oexpresiones.c expresiones.y
