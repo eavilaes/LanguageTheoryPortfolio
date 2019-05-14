@@ -21,3 +21,6 @@ void inicio(){
 	entornoBorrarMensaje();
 }
 
+int main(){
+	if(entornoIniciar()){
+}

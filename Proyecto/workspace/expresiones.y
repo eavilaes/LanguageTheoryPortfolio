@@ -32,13 +32,12 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 %start entrada /* regla de comienzo del lenguaje */
 
 %token SEPARADOR /* separa la primera y la segunda parte del fichero de entrada */
-%token <c_cadena> TIPO	/* yylval.c_cadena incluye el tipo */
-%token TEMPERATURE SMOKE LIGHT SWITCH
+%token INT FLOAT POSITION STRING ALARM MESSAGE TEMPERATURE SMOKE LIGHT SWITCH
 %token <c_cadena> ID
 %token <c_entero> ENTERO
 %token <c_real> REAL
 %token <c_bool> BOOL
-%token <c_cadena> STRING /* contenido de un string, sin las comillas */
+%token <c_cadena> CADENA /* contenido de un string, sin las comillas */
 %token SCENE
 %token <c_cadena> START
 %token <c_cadena> PAUSE
@@ -81,7 +80,9 @@ parte1:   declaracion ';'		{}
 	| error ';' {yyerrok;} parte1
 	;
 /*En la declaración se incluyen variables, sensores y actuadores*/
-declaracion: TIPO ID		{strcpy(datoVar->nombre,$2);datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO verificar datoVar->tipo
+declaracion: INT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=0;datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO verificar datoVar->tipo
+	   | FLOAT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=1;datoVar->inicializado=false;tablaVar->insertar(datoVar);}
+	   | STRING ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=3;datoVar->inicializado=false;tablaVar->insertar(datoVar);cout<<"string\n";}
 	   | declaracion ',' ID	{strcpy(datoVar->nombre,$3);datoVar->inicializado=false;tablaVar->insertar(datoVar);}//TODO(2)
 	   ;
 asignacion:  ID '=' expr	{tablaVar->buscar($1,datoVar);if(strcmp(datoVar->nombre,$1)==0){
@@ -100,7 +101,7 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 						else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
 						else cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida" << endl;
 					}}
-	| cadena		{cout<<endl;}
+	| cadena		{}
 	| expr '+' expr 	{$$=$1+$3;}
 	| expr '-' expr 	{$$=$1-$3;}
 	| expr '*' expr 	{$$=$1*$3;}
@@ -110,9 +111,9 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 	|'-' expr %prec menos	{$$= -$2;}
 	|'(' expr ')'		{$$=$2;}
 	;
-posicion: '<' expr ',' expr '>'	{datoSens->posY=$2;datoSens->posX=$4;cout<<"***************"<<$2<<" "<<$4<<endl;}
+posicion: '<' expr ',' expr '>'	{datoSens->posY=$2;datoSens->posX=$4;}
 	;
-cadena:	  STRING		{strcpy(datoSens->alias,$1);}
+cadena:	  CADENA		{strcpy(datoSens->alias,$1);}
 	;
 
 sensor:   TEMPERATURE ID posicion cadena {datoSens->tipo=4; strcpy(datoSens->nombre,$2); datoSens->inicializado=true; tablaSens->insertar(datoSens);}
@@ -130,30 +131,30 @@ parte2:	  escena ';'		{}
 	| escena ';' parte2	{}
 	| error ';' {yyerrok;} parte2
 	;
-escena:	SCENE ID '[' bloque ']'	{cout<<"Escena: "<<$2<<endl;}
+escena:	SCENE ID '[' bloque ']'	{}
 	;
 bloque:   instr ';'		{}
 	| instr ';' bloque	{}
 	;
-instr:	  START					{cout<<"Start"<<endl;}
-	| PAUSE expr				{cout<<"Pausa de tiempo"<<endl;}
-	| PAUSE					{cout<<"Pausa con tecla"<<endl;}
-	| ID expr				{cout<<"Sensor/activador "<<$1<<" ha detectado algo/activado o apagado"<<endl;}
-	| ID expr STRING			{cout<<"Activador de mensaje"<<endl;}
-	| ID expr ID				{cout<<"Activador de mensaje en variable"<<endl;}
-	| IF comp THEN '[' bloque ']'		{cout<<"Bloque IF"<<endl;}
-	| REPEAT expr '[' bloque ']'		{cout<<"Bloque REPEAT"<<endl;}
+instr:	  START					{}
+	| PAUSE expr				{}
+	| PAUSE					{}
+	| ID expr				{}
+	| ID expr CADENA			{}
+	| ID expr ID				{}
+	| IF comp THEN '[' bloque ']'		{}
+	| REPEAT expr '[' bloque ']'		{}
 	;
-comp:	  expr '<' expr	{cout<<"Menor que"<<endl;}
-	| expr LE expr	{cout<<"Menor o igual que"<<endl;}
-	| expr '>' expr	{cout<<"Mayor que"<<endl;}
-	| expr GE expr	{cout<<"Mayor o igual que"<<endl;}
-	| expr EQ expr	{cout<<"Igual que"<<endl;}
-	| expr NE expr	{cout<<"Distinto que"<<endl;}
-	| comp AND comp	{cout<<"Comparaciones múltiples con AND"<<endl;}
-	| comp OR comp	{cout<<"Comparaciones múltiples con OR"<<endl;}
-	| NOT comp	{cout<<"Comparaciones con un NOT delante"<<endl;}
-	| '(' comp ')'	{cout<<"Paréntesis"<<endl;}
+comp:	  expr '<' expr	{}
+	| expr LE expr	{}
+	| expr '>' expr	{}
+	| expr GE expr	{}
+	| expr EQ expr	{}
+	| expr NE expr	{}
+	| comp AND comp	{}
+	| comp OR comp	{}
+	| NOT comp	{}
+	| '(' comp ')'	{}
 	;
 %%
 
@@ -212,7 +213,16 @@ int main(int argc, char *argv[]){
 		sal << "	entornoBorrarMensaje();\n";
 		sal <<"}\n\n";
 
+		//Main
+		sal << "int main(){\n";
+		sal << "	if(entornoIniciar()){\n";
+
+		sal << "}";
+
+
 		//******Zona de debug******
+		bool debug=true;
+		if(debug){
 		ofstream tabla ("tablaSimbolos.txt", std::ofstream::trunc);
 		nodo *n = tablaVar->getPrimero();
 		tabla << "******************************************" << endl;
@@ -222,13 +232,15 @@ int main(int argc, char *argv[]){
 			if(n->elem.tipo==0){
 			tabla << "**  entero	"; tabla<< n->elem.nombre; tabla << "		"; tabla<<n->elem.valor.valor_entero; tabla<<"	**\n";
 			}else if(n->elem.tipo==1){
-			tabla << "**  real	"; tabla<< n->elem.nombre; tabla << "		"; tabla<<n->elem.valor.valor_real; tabla<<"	**\n";
+			tabla << "**  real	"; tabla<< n->elem.nombre; tabla << "	"; tabla<<n->elem.valor.valor_real; tabla<<"	**\n";
 			}else if(n->elem.tipo==2){
 				if(n->elem.valor.valor_bool==false){
 			tabla << "**  lógico	"; tabla<< n->elem.nombre; tabla << "		false	**\n";
 				}else{
 			tabla << "**  lógico	"; tabla<< n->elem.nombre; tabla << "		true	**\n";
 			}
+			}else if(n->elem.tipo==3){
+			tabla << "**  string	"; tabla<< n->elem.nombre; tabla << "			**\n";
 			}
 			n=n->sig;
 		}
@@ -240,6 +252,16 @@ int main(int argc, char *argv[]){
 				tabla << aux->elem.nombre << "\n";
 			aux=aux->sig;
 		}
+		tabla << "\n\nSensores \n******************************************" << endl;
+		aux = tablaSens->getPrimero();
+		while(aux!=NULL){
+			if(aux->elem.inicializado=true)
+				tabla << aux->elem.tipo << "	" << aux->elem.nombre  << "\n";
+			aux=aux->sig;
+		}
+		}//debug
+
+
 	}else
 		printf("Error en la llamada. Ejemplo: %s ficheroEntrada ficheroSalida\n", argv[0]);
 	return 0;

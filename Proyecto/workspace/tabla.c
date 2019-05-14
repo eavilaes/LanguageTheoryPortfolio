@@ -30,7 +30,7 @@ bool Tabla::insertar (tipo_datoTS *identificador){
 			aux->sig=NULL;
 			act->sig=aux;
 			insertado=true;
-			//printf("***No se ha encontrado %s, se crea una nueva entrada en la tabla\n", identificador->nombre);
+			//printf("***No se ha encontrado %s, se crea una nueva entrada en la tabla, tipo %d\n", identificador->nombre, identificador->tipo);
 		}else{
 			if(identificador->tipo==act->elem.tipo){
 				aux->elem.valor=identificador->valor;

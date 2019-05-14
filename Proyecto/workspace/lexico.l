@@ -17,14 +17,14 @@ caracter			[A-Za-z_]
 <COM>.						;
 "\""						BEGIN(STR);
 <STR>"\""					BEGIN(0);
-<STR>[^"]*					strcpy(yylval.c_cadena,yytext);return STRING;
+<STR>[^"]*					strcpy(yylval.c_cadena,yytext);return CADENA;
 
-int						|
-float						|
-position					|
-string						|
-alarm						|
-message						strcpy(yylval.c_cadena,yytext);return TIPO;
+int						return INT;
+float						return FLOAT;
+position					return POSITION;
+string						return STRING;
+alarm						return ALARM;
+message						strcpy(yylval.c_cadena,yytext);return MESSAGE;
 temperature					return TEMPERATURE;
 smoke						return SMOKE;
 light						return LIGHT;
