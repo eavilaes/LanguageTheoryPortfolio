@@ -156,8 +156,8 @@ instr:	  START					{datoInst->tipo=4;tablaInst->insertar(datoInst);}
 							tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
 	| ID expr ID				{datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}
-	| IF comp THEN '[' bloque ']'		{}
-	| REPEAT expr '[' bloque ']'		{}
+	| IF comp THEN '[' bloque ']'		{}	//TODO comprobar si 'comp' se cumple
+	| REPEAT expr '[' bloque ']'		{}	//TODO escribir 'expr' veces las instrucciones
 	;
 comp:	  expr '<' expr	{}
 	| expr LE expr	{}
@@ -278,7 +278,7 @@ int main(int argc, char *argv[]){
 
 
 		//************************************************************Zona de debug************************************************************
-		bool debug=true;
+		bool debug=false; //Poner a true para que se genere tablaSimbolos.txt, conteniendo información de las distintas tablas de símbolos.
 		if(debug){
 		ofstream tabla ("tablaSimbolos.txt", std::ofstream::trunc);
 		//----TABLA DE VARIABLES----
