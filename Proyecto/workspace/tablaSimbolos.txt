@@ -3,14 +3,26 @@
 ******************************************
 **  entero	f		20	**
 **  entero	c		4	**
-**  entero	winterTemp		937859520	**
-**  entero	summerTemp		1103364096	**
-**  entero	p_Sensor		-2147483648	**
-**  entero	msg		1	**
-**  entero	A		1	**
-**  entero	Whatsapp		1	**
+**  real	winterTemp	20.825	**
+**  real	summerTemp	24.5	**
+**  string	msg			**
 ******************************************
 
 
 Sensores sin inicializar
 ******************************************
+******************************************
+
+
+Sensores 
+******************************************
+4	indoorTemp
+5	S
+8	Heat
+******************************************
+
+
+Instrucciones 
+******************************************
+5
+5

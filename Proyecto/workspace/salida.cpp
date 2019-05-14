@@ -21,3 +21,8 @@ void inicio(){
 	entornoBorrarMensaje();
 }
 
+int main(){
+	if(entornoIniciar()){
+	entornoPonerEscenario("Winter");
+	entornoPonerEscenario("Fire");
+}
