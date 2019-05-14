@@ -25,20 +25,22 @@ int main(){
 	if(entornoIniciar()){
 	entornoPonerEscenario("Winter");
 	inicio();
+	entornoPulsarTecla();
 	entornoPonerSensor(25,25,S_temperature,18.2,"T1");
-	entornoPonerSensor(480,420,,"CA");
-	entornoPonerSensor(480,420,,"CA");
+	entornoPonerAct_Switch(480,420,true,"CA");
+	entornoMostrarMensaje("Calefacción encendida");
 	entornoPausa(3);
-	entornoPonerSensor(480,420,,"CA");
+	entornoMostrarMensaje("");
 	entornoPonerSensor(25,25,S_temperature,28.2,"T1");
-	entornoPonerSensor(480,420,,"CA");
-	entornoPonerSensor(480,420,,"CA");
-	entornoPonerSensor(480,420,,"CA");
+	entornoBorrarMensaje();
+	entornoMostrarMensaje("Calefacción apagada");
+	entornoPulsarTecla();
+	entornoMostrarMensaje("Calefacción apagada");
 	entornoPonerEscenario("Fire");
 	inicio();
 	entornoPausa(1);
 	entornoPonerSensor(250,250,S_smoke,100,"SH");
 	entornoPonerSensor(250,250,,"SH");
 	entornoPausa(1);
-	entornoPonerSensor(480,420,,"CA");
+	entornoMostrarMensaje("");
 }

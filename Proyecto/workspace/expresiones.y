@@ -144,7 +144,7 @@ bloque:   instr ';'		{}
 	;
 instr:	  START					{datoInst->tipo=4;tablaInst->insertar(datoInst);}
 	| PAUSE expr				{datoInst->tipo=6;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}
-	| PAUSE					{}
+	| PAUSE					{datoInst->tipo=3;tablaInst->insertar(datoInst);}
 	| ID expr				{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==4) datoInst->valor.valor_real=$2;
 							else if(datoSens->tipo==5) datoInst->valor.valor_entero=$2;
@@ -156,7 +156,7 @@ instr:	  START					{datoInst->tipo=4;tablaInst->insertar(datoInst);}
 							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena);
 							tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
-	| ID expr ID				{}
+	| ID expr ID				{datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}
 	| IF comp THEN '[' bloque ']'		{}
 	| REPEAT expr '[' bloque ']'		{}
 	;
@@ -238,12 +238,19 @@ int main(int argc, char *argv[]){
 			switch(ins->elem.tipo){
 				case 0:		//asignacion
 					tablaSens->buscar(ins->elem.ref, datoSe);
-					sal << "	entornoPonerSensor(" << datoSe->posY << "," << datoSe->posX << ",";
+					if(datoSe->tipo==TIPO_SWITCH && ins->elem.valor.valor_bool==true){
+						sal << "	entornoPonerAct_Switch(" << datoSe->posY << "," << datoSe->posX << ",true," << "\"" << datoSe->alias << "\");\n";
+					}else if(datoSe->tipo==TIPO_SWITCH && ins->elem.valor.valor_bool==false){
+						sal << "	entornoBorrarMensaje();\n";
+					}else if(datoSe->tipo==TIPO_MESSAGE){
+						sal << "	entornoMostrarMensaje(\"" << ins->elem.valor.valor_cadena << "\");\n";
+					}else {sal << "	entornoPonerSensor(" << datoSe->posY << "," << datoSe->posX << ",";
 						if(datoSe->tipo==TIPO_TEMPERATURE) sal<<"S_temperature," << ins->elem.valor.valor_real;
 						else if(datoSe->tipo==TIPO_SMOKE) sal<<"S_smoke," << ins->elem.valor.valor_entero;
 						else if(datoSe->tipo==TIPO_LIGHT) sal<<"S_light," << ins->elem.valor.valor_real;
 						else cout << "Error al actualizar el valor de un sensor. No es temp, smoke ni light. Es tipo " << datoSe->tipo << endl;
 						sal << ",\"" << datoSe->alias << "\");\n";
+					}
 					break;
 				case 1:		//ON
 					break;
