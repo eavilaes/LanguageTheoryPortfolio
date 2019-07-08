@@ -40,7 +40,7 @@ int main(){
 	inicio();
 	entornoPausa(1);
 	entornoPonerSensor(250,250,S_smoke,100,"SH");
-	entornoPonerSensor(250,250,,"SH");
+	entornoAlarma();
 	entornoPausa(1);
 	entornoBorrarMensaje();
 }

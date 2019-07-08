@@ -148,7 +148,7 @@ bloque:   instr ';'		{ifblock=false;}
 instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;tablaInst->insertar(datoInst);}}
 	| PAUSE expr				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=6;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}}
 	| PAUSE					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=3;tablaInst->insertar(datoInst);}}
-	| ID expr				{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+	| ID expr				{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ if(datoSens->tipo!=7) datoInst->tipo=0;else datoInst->tipo=1; strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==4){ datoInst->valor.valor_real=$2;tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==5){ datoInst->valor.valor_entero=$2; tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==8 || datoSens->tipo==7 || datoSens->tipo==9) datoInst->valor.valor_bool=$2;
@@ -257,6 +257,7 @@ int main(int argc, char *argv[]){
 					}
 					break;
 				case 1:		//ON
+					sal << "	entornoAlarma();\n";
 					break;
 				case 2:		//OFF
 					break;
