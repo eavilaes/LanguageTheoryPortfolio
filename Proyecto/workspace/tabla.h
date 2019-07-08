@@ -12,6 +12,7 @@ struct tipo_datoTS{
 	tipo_cadena nombre;
 	int tipo;
 	tipo_valor valor;
+	tipo_cadena texto;
 	bool inicializado;
 };
 
@@ -24,7 +25,7 @@ class Tabla{
 	public:
 		nodo *primero;
 
-		bool insertar (tipo_datoTS *identificador);
+		bool insertar (tipo_datoTS *identificador);	
 		bool buscar (tipo_cadena nombre, tipo_datoTS *identificador);
 		nodo * getPrimero();
 };
