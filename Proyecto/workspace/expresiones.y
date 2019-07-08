@@ -12,7 +12,8 @@ using namespace std;
 
 bool entero=false, real=false;
 bool error=false, ifblock=false, cmp=false;
-int bucle=0;
+int bucle=0, indice=0;
+int reps [20];
 Tabla *tablaVar = (Tabla*)malloc(sizeof(Tabla));
 TablaSens *tablaSens = (TablaSens*)malloc(sizeof(TablaSens));
 TablaInst *tablaInst = (TablaInst*)malloc(sizeof(TablaInst));
@@ -161,7 +162,7 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;dat
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
 	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
 	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
-	| REPEAT expr {bucle++;} '[' bloque ']'		//TODO escribir 'expr' veces las instrucciones
+	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'		//TODO escribir 'expr' veces las instrucciones
 	;
 comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr LE expr	{if($1<$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}
@@ -191,7 +192,8 @@ int main(int argc, char *argv[]){
 		const int TIPO_SWITCH = 8;
 		const int TIPO_MESSAGE = 9;
 
-
+		extern int reps[20];
+		for (int i=0;i<20;i++) reps[i]=0;
 		yyin = fopen(argv[1],"rt");
 		ofstream sal (argv[2], std::ofstream::trunc);
 		n_lineas=0;
@@ -237,11 +239,12 @@ int main(int argc, char *argv[]){
 		sal << "	if(entornoIniciar()){\n";
 		inst *ins = tablaInst->getPrimero();
 		tipo_datoTSens *datoSe = (tipo_datoTSens*)malloc(sizeof(tipo_datoTSens));
-		int loop=0;
+		int loop=0, idx=0;
 		while(ins!=NULL){
 			if(ins->elem.nBucle > loop){
-				sal << "	for(int i"<<loop<<"=0; i"<<loop<<"<2; i"<<loop<<"++){\n";
+				sal << "	for(int i"<<loop<<"=0; i"<<loop<<"<"<<reps[idx]<<"; i"<<loop<<"++){\n";
 				loop++;
+				idx++;
 			}else if(ins->elem.nBucle < loop){
 			//	sal << "	}\n";
 				loop--;

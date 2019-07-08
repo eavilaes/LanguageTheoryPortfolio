@@ -55,7 +55,7 @@ scene Fire [
 		repeat 2 [   #se producirán 4 pitidos en intervalos de 1 segundo
 			A ON;   
 			pause 1;
-			repeat 2 [   #se producirán 4 pitidos en intervalos de 1 segundo
+			repeat 3 [   #se producirán 4 pitidos en intervalos de 1 segundo
 				A ON;   
 				pause 1;
 			];
