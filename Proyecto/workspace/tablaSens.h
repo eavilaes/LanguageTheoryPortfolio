@@ -14,7 +14,7 @@ struct tipo_datoTSens{
 	tipo_cadena nombre;
 	int tipo;
 	tipo_cadena alias;
-	bool encendido;
+	float valor;
 	bool inicializado;
 };
 
@@ -29,5 +29,6 @@ class TablaSens{
 
 		bool insertar (tipo_datoTSens *identificador);
 		bool buscar (tipo_cadena nombre, tipo_datoTSens *identificador);
+		bool actualizarValor (tipo_cadena nombre, float nValor);
 		sens * getPrimero();
 };

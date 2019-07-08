@@ -32,10 +32,11 @@ bool TablaSens::insertar (tipo_datoTSens *identificador){
 			insertado=true;
 			//printf("***No se ha encontrado %s, se crea una nueva entrada en la tabla\n", identificador->nombre);
 		}else{
+			fprintf(stderr, "encontrado %s\n", act->elem.nombre);
 			if(identificador->tipo==act->elem.tipo){
 				aux->elem.posY=identificador->posY;
 				aux->elem.posX=identificador->posX;
-				aux->elem.encendido=identificador->encendido;
+				//aux->elem.valor=identificador->valor;
 				aux->elem.inicializado=identificador->inicializado;
 				if(act->sig==NULL)
 					aux->sig=NULL;
@@ -50,6 +51,21 @@ bool TablaSens::insertar (tipo_datoTSens *identificador){
 	return insertado;
 }
 
+bool TablaSens::actualizarValor (tipo_cadena nombre, float nValor){
+	sens *aux = getPrimero();
+	bool enc=false;
+	while(aux!=NULL && !enc){
+		if(strcmp(nombre, aux->elem.nombre)==0){
+			enc=true;
+			aux->elem.valor=nValor;
+		}else
+			aux=aux->sig;
+	}
+	if(!enc)
+		printf("Error: No se puede actualizar el valor de un sensor que no existe.\n");
+	return enc;
+}
+
 bool TablaSens::buscar(tipo_cadena nombre, tipo_datoTSens *identificador){
 	sens *aux = getPrimero();
 	bool enc=false;
@@ -61,7 +77,7 @@ bool TablaSens::buscar(tipo_cadena nombre, tipo_datoTSens *identificador){
 			(*identificador).posY=aux->elem.posY;
 			(*identificador).posX=aux->elem.posX;
 			strcpy((*identificador).alias,aux->elem.alias);
-			(*identificador).encendido=aux->elem.encendido;
+			(*identificador).valor=aux->elem.valor;
 			(*identificador).inicializado=aux->elem.inicializado;
 		}else
 			aux=aux->sig;

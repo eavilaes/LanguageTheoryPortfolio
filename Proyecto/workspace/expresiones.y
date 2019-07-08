@@ -11,7 +11,7 @@
 using namespace std;
 
 bool entero=false, real=false;
-bool error=false;
+bool error=false, ifblock=false, cmp=false;
 Tabla *tablaVar = (Tabla*)malloc(sizeof(Tabla));
 TablaSens *tablaSens = (TablaSens*)malloc(sizeof(TablaSens));
 TablaInst *tablaInst = (TablaInst*)malloc(sizeof(TablaInst));
@@ -67,6 +67,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 }
 
 %type <c_real> expr
+%type <c_bool> comp
 
 %%
 
@@ -106,6 +107,8 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 						if(datoVar->tipo==0){ $$=datoVar->valor.valor_entero; entero=true;}
 						else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
 						else cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida" << endl;
+					}else if(tablaSens->buscar($1, datoSens)){
+						$$=datoSens->valor;
 					}}
 	| cadena		{}
 	| expr '+' expr 	{$$=$1+$3;}
@@ -139,35 +142,35 @@ parte2:	  escena ';'		{}
 	;
 escena:	SCENE ID {datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);} '[' bloque ']'	
 	;
-bloque:   instr ';'		{}
+bloque:   instr ';'		{ifblock=false;}
 	| instr ';' bloque	{}
 	;
-instr:	  START					{datoInst->tipo=4;tablaInst->insertar(datoInst);}
-	| PAUSE expr				{datoInst->tipo=6;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}
-	| PAUSE					{datoInst->tipo=3;tablaInst->insertar(datoInst);}
-	| ID expr				{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
-							if(datoSens->tipo==4) datoInst->valor.valor_real=$2;
+instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;tablaInst->insertar(datoInst);}}
+	| PAUSE expr				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=6;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}}
+	| PAUSE					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=3;tablaInst->insertar(datoInst);}}
+	| ID expr				{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+							if(datoSens->tipo==4){ datoInst->valor.valor_real=$2;tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==5) datoInst->valor.valor_entero=$2;
 							else if(datoSens->tipo==8 || datoSens->tipo==7 || datoSens->tipo==9) datoInst->valor.valor_bool=$2;
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
-						tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
-	| ID expr CADENA			{if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+						tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
+	| ID expr CADENA			{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena);
 							tablaInst->insertar(datoInst);
-						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}
-	| ID expr ID				{datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}
-	| IF comp THEN '[' bloque ']'		{}	//TODO comprobar si 'comp' se cumple
+						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
+	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
+	| IF comp THEN {ifblock=true;} '[' bloque ']'	//TODO comprobar si 'comp' se cumple
 	| REPEAT expr '[' bloque ']'		{}	//TODO escribir 'expr' veces las instrucciones
 	;
-comp:	  expr '<' expr	{}
-	| expr LE expr	{}
-	| expr '>' expr	{}
-	| expr GE expr	{}
-	| expr EQ expr	{}
-	| expr NE expr	{}
-	| comp AND comp	{}
-	| comp OR comp	{}
-	| NOT comp	{}
+comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
+	| expr LE expr	{if($1<$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}
+	| expr '>' expr	{if($1>$3) cmp=true; else cmp=false; $$=cmp;}
+	| expr GE expr	{if($1>$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}
+	| expr EQ expr	{if($1==$3) cmp=true; else cmp=false; $$=cmp;}
+	| expr NE expr	{if($1!=$3) cmp=true; else cmp=false; $$=cmp;cout << $1 << " " << $3<< endl;}
+	| comp AND comp	{if($1==true && $3==true) cmp=true; else cmp=false; $$=cmp;}
+	| comp OR comp	{if($1==true || $3==true) cmp=true; else cmp=false; $$=cmp;}
+	| NOT comp	{if($2==true) cmp=false; else cmp=true; $$=cmp;cout<<$2<<endl;}
 	| '(' comp ')'	{}
 	;
 %%
@@ -249,7 +252,7 @@ int main(int argc, char *argv[]){
 						if(datoSe->tipo==TIPO_TEMPERATURE) sal<<"S_temperature," << ins->elem.valor.valor_real;
 						else if(datoSe->tipo==TIPO_SMOKE) sal<<"S_smoke," << ins->elem.valor.valor_entero;
 						else if(datoSe->tipo==TIPO_LIGHT) sal<<"S_light," << ins->elem.valor.valor_real;
-						else cout << "Error al actualizar el valor de un sensor. No es temp, smoke ni light. Es tipo " << datoSe->tipo << endl;
+						else if(datoSe->tipo!=TIPO_ALARM) cout << "Error al actualizar el valor de un sensor. No es temp, smoke ni light. Es tipo " << datoSe->tipo << endl;
 						sal << ",\"" << datoSe->alias << "\");\n";
 					}
 					break;
@@ -278,7 +281,7 @@ int main(int argc, char *argv[]){
 
 
 		//************************************************************Zona de debug************************************************************
-		bool debug=false; //Poner a true para que se genere tablaSimbolos.txt, conteniendo información de las distintas tablas de símbolos.
+		bool debug=true; //Poner a true para que se genere tablaSimbolos.txt, conteniendo información de las distintas tablas de símbolos.
 		if(debug){
 		ofstream tabla ("tablaSimbolos.txt", std::ofstream::trunc);
 		//----TABLA DE VARIABLES----
@@ -317,18 +320,18 @@ int main(int argc, char *argv[]){
 		aux = tablaSens->getPrimero();
 		while(aux!=NULL){
 			if(aux->elem.inicializado=true)
-				tabla << aux->elem.tipo << "	" << aux->elem.nombre  << "\n";
+				tabla << aux->elem.tipo << "	" << aux->elem.nombre  << "		" << aux->elem.valor << "\n";
 			aux=aux->sig;
 		}
 		tabla << "******************************************" << endl;
 		//----LISTA DE INSTRUCCIONES----
-		tabla << "\n\nInstrucciones \n******************************************" << endl;
+		tabla << "\n\nInstrucciones (tipos)\n******************************************" << endl;
 		ins = tablaInst->getPrimero();
 		while(ins!=NULL){
 			tabla << ins->elem.tipo << endl;
 			ins=ins->sig;
 		}
-		//tabla << "******************************************" << endl;
+		tabla << "******************************************" << endl;
 		}//debug
 
 

@@ -16,15 +16,15 @@ Sensores sin inicializar
 
 Sensores 
 ******************************************
-4	indoorTemp
-5	S
-7	A
-8	Heat
-9	Whatsapp
+4	indoorTemp		28.2
+5	S		0
+7	A		0
+8	Heat		0
+9	Whatsapp		0
 ******************************************
 
 
-Instrucciones 
+Instrucciones (tipos)
 ******************************************
 5
 4
@@ -44,5 +44,4 @@ Instrucciones
 6
 0
 0
-6
-0
+******************************************
