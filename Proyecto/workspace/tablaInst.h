@@ -13,6 +13,7 @@ struct tipo_datoTInst{
 	int tipo;
 	tipo_cont valor;
 	tipo_cadena ref;
+	int nBucle=0;
 };
 
 struct inst {

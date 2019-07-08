@@ -12,6 +12,7 @@ using namespace std;
 
 bool entero=false, real=false;
 bool error=false, ifblock=false, cmp=false;
+int bucle=0;
 Tabla *tablaVar = (Tabla*)malloc(sizeof(Tabla));
 TablaSens *tablaSens = (TablaSens*)malloc(sizeof(TablaSens));
 TablaInst *tablaInst = (TablaInst*)malloc(sizeof(TablaInst));
@@ -46,7 +47,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 %token <c_cadena> PAUSE
 %token <c_bool> IF
 %token <c_cadena> THEN
-%token <c_entero> REPEAT
+%token <c_entero> 	REPEAT
 %token LE GE EQ NE	/* comparadores */
 %token AND OR NOT	/* operadores lógicos */
 
@@ -142,25 +143,25 @@ parte2:	  escena ';'		{}
 	;
 escena:	SCENE ID {datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);} '[' bloque ']'	
 	;
-bloque:   instr ';'		{ifblock=false;}
+bloque:   instr ';'		{ifblock=false;if(bucle!=0)bucle--;}
 	| instr ';' bloque	{}
 	;
-instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;tablaInst->insertar(datoInst);}}
-	| PAUSE expr				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=6;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}}
-	| PAUSE					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=3;tablaInst->insertar(datoInst);}}
+instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
+	| PAUSE expr				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=6;datoInst->nBucle=bucle;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}}
+	| PAUSE					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=3;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
 	| ID expr				{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ if(datoSens->tipo!=7) datoInst->tipo=0;else datoInst->tipo=1; strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==4){ datoInst->valor.valor_real=$2;tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==5){ datoInst->valor.valor_entero=$2; tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==8 || datoSens->tipo==7 || datoSens->tipo==9) datoInst->valor.valor_bool=$2;
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
-						tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
-	| ID expr CADENA			{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+						datoInst->nBucle=bucle; tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
+	| ID expr CADENA			{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena);
 							tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
-	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
-	| IF comp THEN {ifblock=true;} '[' bloque ']'
-	| REPEAT expr '[' bloque ']'		{}	//TODO escribir 'expr' veces las instrucciones
+	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
+	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
+	| REPEAT expr {bucle++;} '[' bloque ']'		//TODO escribir 'expr' veces las instrucciones
 	;
 comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr LE expr	{if($1<$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}
@@ -236,7 +237,15 @@ int main(int argc, char *argv[]){
 		sal << "	if(entornoIniciar()){\n";
 		inst *ins = tablaInst->getPrimero();
 		tipo_datoTSens *datoSe = (tipo_datoTSens*)malloc(sizeof(tipo_datoTSens));
+		int loop=0;
 		while(ins!=NULL){
+			if(ins->elem.nBucle > loop){
+				sal << "	for(int i"<<loop<<"=0; i"<<loop<<"<2; i"<<loop<<"++){\n";
+				loop++;
+			}else if(ins->elem.nBucle < loop){
+				sal << "	}\n";
+				loop--;
+			}
 			switch(ins->elem.tipo){
 				case 0:		//asignacion
 					tablaSens->buscar(ins->elem.ref, datoSe);
@@ -256,10 +265,10 @@ int main(int argc, char *argv[]){
 						sal << ",\"" << datoSe->alias << "\");\n";
 					}
 					break;
-				case 1:		//ON
+				case 1:		//Alarma ON
 					sal << "	entornoAlarma();\n";
 					break;
-				case 2:		//OFF
+				case 2:		//OFF - no se utiliza, ya que los sensores OFF son tipo entornoPonerSensor (case 0)
 					break;
 				case 3:		//pause sin tiempo
 					sal << "	entornoPulsarTecla();\n";
