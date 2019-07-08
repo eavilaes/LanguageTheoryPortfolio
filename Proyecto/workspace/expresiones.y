@@ -150,7 +150,7 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;tab
 	| PAUSE					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=3;tablaInst->insertar(datoInst);}}
 	| ID expr				{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==4){ datoInst->valor.valor_real=$2;tablaSens->actualizarValor($1,$2);}
-							else if(datoSens->tipo==5) datoInst->valor.valor_entero=$2;
+							else if(datoSens->tipo==5){ datoInst->valor.valor_entero=$2; tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==8 || datoSens->tipo==7 || datoSens->tipo==9) datoInst->valor.valor_bool=$2;
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
 						tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
@@ -159,7 +159,7 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;tab
 							tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
 	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
-	| IF comp THEN {ifblock=true;} '[' bloque ']'	//TODO comprobar si 'comp' se cumple
+	| IF comp THEN {ifblock=true;} '[' bloque ']'
 	| REPEAT expr '[' bloque ']'		{}	//TODO escribir 'expr' veces las instrucciones
 	;
 comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
@@ -167,7 +167,7 @@ comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr '>' expr	{if($1>$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr GE expr	{if($1>$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr EQ expr	{if($1==$3) cmp=true; else cmp=false; $$=cmp;}
-	| expr NE expr	{if($1!=$3) cmp=true; else cmp=false; $$=cmp;cout << $1 << " " << $3<< endl;}
+	| expr NE expr	{if($1!=$3) cmp=true; else cmp=false; $$=cmp;}
 	| comp AND comp	{if($1==true && $3==true) cmp=true; else cmp=false; $$=cmp;}
 	| comp OR comp	{if($1==true || $3==true) cmp=true; else cmp=false; $$=cmp;}
 	| NOT comp	{if($2==true) cmp=false; else cmp=true; $$=cmp;cout<<$2<<endl;}
