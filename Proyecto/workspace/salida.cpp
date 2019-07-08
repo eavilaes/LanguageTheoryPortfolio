@@ -17,7 +17,7 @@ using namespace std;
 void inicio(){
 	entornoPonerSensor(25,25,S_temperature,0,"T1");
 	entornoPonerSensor(250,250,S_smoke,0,"SH");
-	entornoPonerAct_Switch(480,420,false,"CA");
+	entornoPonerAct_Switch(150,550,false,"CA");
 	entornoBorrarMensaje();
 }
 
@@ -27,12 +27,12 @@ int main(){
 	inicio();
 	entornoPulsarTecla();
 	entornoPonerSensor(25,25,S_temperature,18.2,"T1");
-	entornoPonerAct_Switch(480,420,true,"CA");
+	entornoPonerAct_Switch(150,550,true,"CA");
 	entornoMostrarMensaje("Calefacción encendida");
 	entornoPausa(3);
 	entornoBorrarMensaje();
 	entornoPonerSensor(25,25,S_temperature,28.2,"T1");
-	entornoPonerAct_Switch(480,420,false,"CA");
+	entornoPonerAct_Switch(150,550,false,"CA");
 	entornoMostrarMensaje("Calefacción apagada");
 	entornoPulsarTecla();
 	entornoBorrarMensaje();
@@ -43,6 +43,11 @@ int main(){
 	for(int i0=0; i0<2; i0++){
 	entornoAlarma();
 	entornoPausa(1);
+	for(int i1=0; i1<2; i1++){
+	entornoAlarma();
+	entornoPausa(1);
+	}
 	}
 	entornoBorrarMensaje();
+	}
 }

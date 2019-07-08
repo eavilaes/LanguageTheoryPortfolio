@@ -143,7 +143,7 @@ parte2:	  escena ';'		{}
 	;
 escena:	SCENE ID {datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);} '[' bloque ']'	
 	;
-bloque:   instr ';'		{ifblock=false;if(bucle!=0)bucle--;}
+bloque:   instr ';'		{ifblock=false;if(bucle!=0){bucle--;datoInst->tipo=7;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}} //se añade instrucción "ficticia" para diferenciar bucles consecutivos
 	| instr ';' bloque	{}
 	;
 instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
@@ -243,7 +243,7 @@ int main(int argc, char *argv[]){
 				sal << "	for(int i"<<loop<<"=0; i"<<loop<<"<2; i"<<loop<<"++){\n";
 				loop++;
 			}else if(ins->elem.nBucle < loop){
-				sal << "	}\n";
+			//	sal << "	}\n";
 				loop--;
 			}
 			switch(ins->elem.tipo){
@@ -282,12 +282,15 @@ int main(int argc, char *argv[]){
 				case 6:		//pause con tiempo
 					sal << "	entornoPausa(" << ins->elem.valor.valor_entero << ");\n";
 					break;
+				case 7:		//instrucción ficticia para permitir bucles consecutivos
+					sal << "	}\n";
+					break;
 				default:
 					cout << "ERROR. Tipo de instrucción no reconocido." << endl;
 			}
 			ins=ins->sig;
 		}
-		sal << "}";
+		sal << "	}\n}";
 
 
 		//************************************************************Zona de debug************************************************************
