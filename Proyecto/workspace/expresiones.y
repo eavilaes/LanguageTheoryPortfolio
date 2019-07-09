@@ -11,7 +11,7 @@
 using namespace std;
 
 bool entero=false, real=false, cad=false;
-bool error=false, ifblock=false, cmp=false;
+bool error=false, errSem=false, ifblock=false, cmp=false;
 int bucle=0, indice=0;
 int reps [20];
 char cade [50];
@@ -110,11 +110,11 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 	| ID			{if(tablaVar->buscar($1,datoVar)){
 						if(datoVar->tipo==0){ $$=datoVar->valor.valor_entero; entero=true;}
 						else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
-						else cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida" << endl;
+						else{errSem=true; cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida o no es un tipo compatible con esa operación." << endl;}
 					}else if(tablaSens->buscar($1, datoSens)){
 						$$=datoSens->valor;
 					}}
-	| cadena		{cad=true; strcpy(cade, yylval.c_cadena);} //TODO quitar el cpy
+	| cadena		{cad=true; strcpy(cade, yylval.c_cadena);}
 	| expr '+' expr 	{$$=$1+$3;}
 	| expr '-' expr 	{$$=$1-$3;}
 	| expr '*' expr 	{$$=$1*$3;}
@@ -196,14 +196,18 @@ int main(int argc, char *argv[]){
 		extern int reps[20];
 		for (int i=0;i<20;i++) reps[i]=0;
 		yyin = fopen(argv[1],"rt");
-		ofstream sal (argv[2], std::ofstream::trunc);
+		
 		n_lineas=0;
 		extern Tabla *tablaVar;
 		extern TablaSens *tablaSens;
 		extern TablaInst *tablaInst;
-
+		extern bool errSem;
 		yyparse();
 		fclose(yyin);
+
+		if(errSem) return 1; //Error semántico, por limpieza de código no hay un IF gigante
+
+		ofstream sal (argv[2], std::ofstream::trunc);
 		//Cabecera del fichero de salida
 		sal << "//============================================================================\n";
 		sal << "// Name		: " << argv[2] << "\n";
