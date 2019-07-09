@@ -162,7 +162,7 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;dat
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
 	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
 	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
-	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'		//TODO escribir 'expr' veces las instrucciones
+	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'
 	;
 comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr LE expr	{if($1<$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]){
 		sal << "// Author	: Eric Ávila" << "\n";
 		sal << "// Version	: \n";
 		sal << "// Copyright	: Your copyright notice\n";
-		sal << "// Description	: Este proyecto ayuda a conocer el entorno gráfico del proyecto DSLP. Se incluyen diferentes ficheros de configuración para hacer pruebas con facilidad\n";
+		sal << "// Description	: Este proyecto ayuda a conocer el entorno gráfico del proyecto DSLP\n";
 		sal << "//============================================================================\n\n";
 		sal << "#include <iostream>\n#include \"entorno_dspl.h\"\n\nusing namespace std;\n\n";
 
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]){
 			}
 			ins=ins->sig;
 		}
-		sal << "	entornoTerminar();\n	}\n}";
+		sal << "	entornoTerminar();\n	}\n	return 0;\n}";
 
 
 		//************************************************************Zona de debug************************************************************

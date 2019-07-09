@@ -3,7 +3,7 @@
 // Author	: Eric Ávila
 // Version	: 
 // Copyright	: Your copyright notice
-// Description	: Este proyecto ayuda a conocer el entorno gráfico del proyecto DSLP. Se incluyen diferentes ficheros de configuración para hacer pruebas con facilidad
+// Description	: Este proyecto ayuda a conocer el entorno gráfico del proyecto DSLP
 //============================================================================
 
 #include <iostream>
@@ -47,4 +47,5 @@ int main(){
 	entornoBorrarMensaje();
 	entornoTerminar();
 	}
+	return 0;
 }
