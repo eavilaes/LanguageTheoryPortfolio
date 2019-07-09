@@ -2,10 +2,6 @@
 **  TIPO	NOMBRE		VALOR	**
 ******************************************
 **  entero	f		20	**
-**  entero	c		4	**
-**  real	winterTemp	20.825	**
-**  real	summerTemp	24.5	**
-**  string	msg			**
 ******************************************
 
 
@@ -42,6 +38,7 @@ Instrucciones (tipos)
 5
 4
 6
+0
 0
 1
 6
