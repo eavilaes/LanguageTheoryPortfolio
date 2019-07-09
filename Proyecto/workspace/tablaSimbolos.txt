@@ -1,7 +1,11 @@
 ******************************************
 **  TIPO	NOMBRE		VALOR	**
 ******************************************
-**  entero	f		20	**
+**  entero	f		0	**
+**  entero	c		0	**
+**  real	winterTemp	0	**
+**  real	summerTemp	0	**
+**  string	msg			**
 ******************************************
 
 
@@ -12,7 +16,8 @@ Sensores sin inicializar
 
 Sensores 
 ******************************************
-4	indoorTemp		28.2
+4	indoorTemp		18.2
+4	outdoorTemp		10.7
 5	S		100
 7	A		0
 8	Heat		0
@@ -28,20 +33,13 @@ Instrucciones (tipos)
 0
 0
 0
+0
 6
-0
-0
-0
-0
-3
 0
 5
 4
 6
 0
-0
-1
-6
 7
-0
+7
 ******************************************

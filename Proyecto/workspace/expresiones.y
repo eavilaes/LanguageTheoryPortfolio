@@ -11,7 +11,7 @@
 using namespace std;
 
 bool entero=false, real=false, cad=false;
-bool error=false, errSem=false, ifblock=false, cmp=false;
+bool error=false, errSem=false, ifblock=false, elseblock=false, cmp=false;
 int bucle=0, indice=0;
 int reps [20];
 char cade [50];
@@ -49,6 +49,7 @@ void yyerror(const char* s){         /*    llamada por cada error sintactico de 
 %token <c_cadena> PAUSE
 %token <c_bool> IF
 %token <c_cadena> THEN
+%token <c_cadena> ELSE
 %token <c_entero> 	REPEAT
 %token LE GE EQ NE	/* comparadores */
 %token AND OR NOT	/* operadores lógicos */
@@ -146,24 +147,29 @@ parte2:	  escena ';'		{}
 	;
 escena:	SCENE ID {datoInst->tipo=5;strcpy(datoInst->valor.valor_cadena, $2);tablaInst->insertar(datoInst);} '[' bloque ']'	
 	;
-bloque:   instr ';'		{ifblock=false;if(bucle!=0){bucle--;datoInst->tipo=7;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}} //se añade instrucción "ficticia" para diferenciar bucles consecutivos
+bloque:   instr ';'		{if(bucle!=0){bucle--;datoInst->tipo=7;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}} //se añade instrucción "ficticia" para diferenciar bucles consecutivos
 	| instr ';' bloque	{}
 	;
-instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
-	| PAUSE expr				{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=6;datoInst->nBucle=bucle;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}}
-	| PAUSE					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=3;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
-	| ID expr				{if((ifblock && cmp)||(ifblock==false)){ if(tablaSens->buscar($1, datoSens)){ if(datoSens->tipo!=7) datoInst->tipo=0;else datoInst->tipo=1; strcpy(datoInst->ref,$1);
+instr:	  START					{if((ifblock && cmp && !elseblock)||(ifblock==false)||(ifblock && elseblock && !cmp)){ datoInst->tipo=4;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
+	| PAUSE expr				{if((ifblock && cmp && !elseblock)||(ifblock==false)||(ifblock && elseblock && !cmp)){ datoInst->tipo=6;datoInst->nBucle=bucle;datoInst->valor.valor_entero=$2;tablaInst->insertar(datoInst);}}
+	| PAUSE					{if((ifblock && cmp && !elseblock)||(ifblock==false)||(ifblock && elseblock && !cmp)){ datoInst->tipo=3;datoInst->nBucle=bucle;tablaInst->insertar(datoInst);}}
+	| ID expr				{if((ifblock && cmp && !elseblock)||(ifblock==false)||(ifblock && elseblock && !cmp)){ if(tablaSens->buscar($1, datoSens)){ if(datoSens->tipo!=7) datoInst->tipo=0;else datoInst->tipo=1; strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==4){ datoInst->valor.valor_real=$2;tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==5){ datoInst->valor.valor_entero=$2; tablaSens->actualizarValor($1,$2);}
 							else if(datoSens->tipo==8 || datoSens->tipo==7 || datoSens->tipo==9) datoInst->valor.valor_bool=$2;
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
 						datoInst->nBucle=bucle; tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
-	| ID expr CADENA			{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+	| ID expr CADENA			{if((ifblock && cmp && !elseblock)||(ifblock==false)||(ifblock && elseblock && !cmp)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena); tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
-	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=0;strcpy(datoInst->valor.valor_cadena, cade);strcpy(datoInst->ref,$1);tablaInst->insertar(datoInst);}}
-	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
+	| ID expr ID				{if((ifblock && cmp && !elseblock)||(ifblock==false)||(ifblock && elseblock && !cmp)){ datoInst->nBucle=bucle; datoInst->tipo=0;strcpy(datoInst->valor.valor_cadena, cade);strcpy(datoInst->ref,$1);tablaInst->insertar(datoInst);}}
+	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} ifbloq
 	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'
+	;
+ifbloq:	'[' bloque ']'		{ifblock=false;}
+	| '[' bloque ']' else	{ifblock=false;}
+	;
+else:	{elseblock=true;} ELSE '[' bloque ']'
 	;
 comp:	  expr '<' expr	{if($1<$3) cmp=true; else cmp=false; $$=cmp;}
 	| expr LE expr	{if($1<$3||$1==$3) cmp=true; else cmp=false; $$=cmp;}

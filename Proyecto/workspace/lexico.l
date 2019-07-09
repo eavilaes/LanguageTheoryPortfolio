@@ -40,6 +40,7 @@ true						yylval.c_bool = 1;return BOOL;
 false						yylval.c_bool = 0;return BOOL;
 if						return IF;
 then						return THEN;
+else						return ELSE;
 repeat						return REPEAT;
 
 
