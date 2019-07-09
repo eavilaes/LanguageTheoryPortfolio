@@ -159,10 +159,11 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;dat
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
 						datoInst->nBucle=bucle; tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
 	| ID expr CADENA			{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
-							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena);
-							tablaInst->insertar(datoInst);
+							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena); tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
-	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=0;strcpy(datoInst->valor.valor_cadena, cade);strcpy(datoInst->ref,$1);tablaInst->insertar(datoInst);}} //TODO
+	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
+							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, cade); tablaInst->insertar(datoInst);
+						}else cout<<"ERROR."<< endl;}} //TODO
 	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
 	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'
 	;
@@ -295,7 +296,7 @@ int main(int argc, char *argv[]){
 			}
 			ins=ins->sig;
 		}
-		sal << "	}\n}";
+		sal << "	entornoTerminar();\n	}\n	return 0;\n}";
 
 
 		//************************************************************Zona de debug************************************************************

@@ -42,11 +42,9 @@ int main(){
 	for(int i0=0; i0<2; i0++){
 	entornoAlarma();
 	entornoPausa(1);
-	for(int i1=0; i1<3; i1++){
-	entornoAlarma();
-	entornoPausa(1);
-	}
 	}
 	entornoBorrarMensaje();
+	entornoTerminar();
 	}
+	return 0;
 }
