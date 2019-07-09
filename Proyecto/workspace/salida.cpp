@@ -10,7 +10,6 @@
 #include "entorno_dspl.h"
 
 using namespace std;
-
 /* Este procedimiento permite representar los dispositivos
  * en una situación inicial, es decir, los actuadores de tipo switch apagados
  * y los sensores sin ningún valor captado*/
@@ -40,6 +39,7 @@ int main(){
 	inicio();
 	entornoPausa(1);
 	entornoPonerSensor(250,250,S_smoke,100,"SH");
+	entornoMostrarMensaje("Alarma. Alta probabilidad de incendio");
 	for(int i0=0; i0<2; i0++){
 	entornoAlarma();
 	entornoPausa(1);

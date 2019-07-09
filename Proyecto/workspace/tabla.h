@@ -12,6 +12,7 @@ struct tipo_datoTS{
 	tipo_cadena nombre;
 	int tipo;
 	tipo_valor valor;
+	tipo_cadena texto;
 	bool inicializado;
 };
 

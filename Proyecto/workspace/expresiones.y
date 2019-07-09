@@ -10,10 +10,11 @@
 
 using namespace std;
 
-bool entero=false, real=false;
+bool entero=false, real=false, cad=false;
 bool error=false, ifblock=false, cmp=false;
 int bucle=0, indice=0;
 int reps [20];
+char cade [50];
 Tabla *tablaVar = (Tabla*)malloc(sizeof(Tabla));
 TablaSens *tablaSens = (TablaSens*)malloc(sizeof(TablaSens));
 TablaInst *tablaInst = (TablaInst*)malloc(sizeof(TablaInst));
@@ -97,9 +98,10 @@ declaracion: INT ID		{strcpy(datoVar->nombre,$2);datoVar->tipo=0;datoVar->inicia
 asignacion:  ID '=' expr	{tablaVar->buscar($1,datoVar);if(strcmp(datoVar->nombre,$1)==0){
 					if(entero) datoVar->valor.valor_entero=$3;
 					else if(real) datoVar->valor.valor_real=$3;
+					else if(cad) strcpy(datoVar->texto, yylval.c_cadena);
 					else datoVar->valor.valor_bool=$3;
 					datoVar->inicializado=true;tablaVar->insertar(datoVar);
-				}entero=false;real=false;}
+				}entero=false;real=false;cad=false;}
 	   ;
 expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 	| REAL			{$$=$1;real=true;datoVar->tipo=1;}
@@ -112,7 +114,7 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 					}else if(tablaSens->buscar($1, datoSens)){
 						$$=datoSens->valor;
 					}}
-	| cadena		{}
+	| cadena		{cad=true; strcpy(cade, yylval.c_cadena);} //TODO quitar el cpy
 	| expr '+' expr 	{$$=$1+$3;}
 	| expr '-' expr 	{$$=$1-$3;}
 	| expr '*' expr 	{$$=$1*$3;}
@@ -157,10 +159,9 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;dat
 							else cout << "ERROR: Tipo de dato del sensor no conocido: " << datoSens->tipo << endl;
 						datoInst->nBucle=bucle; tablaInst->insertar(datoInst);}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
 	| ID expr CADENA			{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
-							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena);
-							tablaInst->insertar(datoInst);
+							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, yylval.c_cadena); tablaInst->insertar(datoInst);
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
-	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=9;strcpy(datoInst->valor.valor_cadena, $3);strcpy(datoInst->ref,$1);}}
+	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle; datoInst->tipo=0;strcpy(datoInst->valor.valor_cadena, cade);strcpy(datoInst->ref,$1);tablaInst->insertar(datoInst);}}
 	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
 	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'
 	;
@@ -211,7 +212,7 @@ int main(int argc, char *argv[]){
 		sal << "// Copyright	: Your copyright notice\n";
 		sal << "// Description	: Este proyecto ayuda a conocer el entorno gráfico del proyecto DSLP\n";
 		sal << "//============================================================================\n\n";
-		sal << "#include <iostream>\n#include \"entorno_dspl.h\"\n\nusing namespace std;\n\n";
+		sal << "#include <iostream>\n#include \"entorno_dspl.h\"\n\nusing namespace std;\n";
 
 		//Cuerpo del fichero de salida
 		sal << "/* Este procedimiento permite representar los dispositivos\n * en una situación inicial, es decir, los actuadores de tipo switch apagados\n * y los sensores sin ningún valor captado*/\n";
