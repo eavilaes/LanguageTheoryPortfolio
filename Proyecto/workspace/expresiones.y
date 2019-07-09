@@ -360,8 +360,6 @@ int main(int argc, char *argv[]){
 		}
 		tabla << "******************************************" << endl;
 		}//debug
-
-		}//errorSem
 	}else
 		printf("Error en la llamada. Ejemplo: %s ficheroEntrada ficheroSalida\n", argv[0]);
 	return 0;
