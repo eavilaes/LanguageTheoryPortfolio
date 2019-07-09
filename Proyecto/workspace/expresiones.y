@@ -11,7 +11,7 @@
 using namespace std;
 
 bool entero=false, real=false, cad=false;
-bool error=false, ifblock=false, cmp=false;
+bool error=false, errorSem=false, ifblock=false, cmp=false;
 int bucle=0, indice=0;
 int reps [20];
 char cade [50];
@@ -110,7 +110,7 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 	| ID			{if(tablaVar->buscar($1,datoVar)){
 						if(datoVar->tipo==0){ $$=datoVar->valor.valor_entero; entero=true;}
 						else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
-						else cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida" << endl;
+						else{ cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida" << endl;errorSem=true;}
 					}else if(tablaSens->buscar($1, datoSens)){
 						$$=datoSens->valor;
 					}}
@@ -163,7 +163,7 @@ instr:	  START					{if((ifblock && cmp)||(ifblock==false)){ datoInst->tipo=4;dat
 						}else cout<<"Sensor o activador " << $1 << " no encontrado. No se le puede asignar un valor. Línea " << n_lineas << endl;}}
 	| ID expr ID				{if((ifblock && cmp)||(ifblock==false)){ datoInst->nBucle=bucle;if(tablaSens->buscar($1, datoSens)){ datoInst->tipo=0;strcpy(datoInst->ref,$1);
 							if(datoSens->tipo==9) strcpy(datoInst->valor.valor_cadena, cade); tablaInst->insertar(datoInst);
-						}else cout<<"ERROR."<< endl;}} //TODO
+						}else cout<<"ERROR."<< endl;}}
 	| IF comp THEN {ifblock=true;datoInst->nBucle=bucle;} '[' bloque ']'
 	| REPEAT expr {reps[indice]=$2;indice++;bucle++;} '[' bloque ']'
 	;
@@ -198,14 +198,19 @@ int main(int argc, char *argv[]){
 		extern int reps[20];
 		for (int i=0;i<20;i++) reps[i]=0;
 		yyin = fopen(argv[1],"rt");
-		ofstream sal (argv[2], std::ofstream::trunc);
+		
 		n_lineas=0;
 		extern Tabla *tablaVar;
 		extern TablaSens *tablaSens;
 		extern TablaInst *tablaInst;
 
+		extern bool errorSem;
+
 		yyparse();
 		fclose(yyin);
+
+		if(!errorSem){
+		ofstream sal (argv[2], std::ofstream::trunc);
 		//Cabecera del fichero de salida
 		sal << "//============================================================================\n";
 		sal << "// Name		: " << argv[2] << "\n";
@@ -353,7 +358,7 @@ int main(int argc, char *argv[]){
 		tabla << "******************************************" << endl;
 		}//debug
 
-
+		}//errorSem
 	}else
 		printf("Error en la llamada. Ejemplo: %s ficheroEntrada ficheroSalida\n", argv[0]);
 	return 0;
