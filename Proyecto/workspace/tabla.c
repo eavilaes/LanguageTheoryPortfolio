@@ -15,7 +15,7 @@ bool Tabla::insertar (tipo_datoTS *identificador){
 		primero->elem = *identificador;
 		primero->sig=NULL;
 		insertado=true;
-		//printf("***Insertado %s en la primera posición\n", identificador->nombre);
+		//printf("***Insertado %s en la primera posición.\n", identificador->nombre);
 	}else{
 		if(strcmp(act->elem.nombre, identificador->nombre)==0)
 			enc=true;		
@@ -33,16 +33,16 @@ bool Tabla::insertar (tipo_datoTS *identificador){
 			//printf("***No se ha encontrado %s, se crea una nueva entrada en la tabla, tipo %d\n", identificador->nombre, identificador->tipo);
 		}else{
 			if(identificador->tipo==act->elem.tipo){
-				aux->elem.valor=identificador->valor;
+				act->elem.valor=identificador->valor;
 				if(act->sig==NULL)
-					aux->sig=NULL;
+					act->sig=NULL;
 				else
-					aux->sig = act->sig;
-				aux->elem.inicializado=true;
+					act->sig = act->sig;
+				act->elem.inicializado=true;
 				insertado=true;
 				//printf("***Se ha encontrado %s y se ha actualizado con el nuevo valor\n", identificador->nombre);
 			}//else
-				//printf("***Se ha encontrado %s y no coincide en el tipo. No se actualiza\n", identificador->nombre);
+			//	printf("***Se ha encontrado %s y no coincide en el tipo. No se actualiza\n", identificador->nombre);
 		}
 	}
 	return insertado;

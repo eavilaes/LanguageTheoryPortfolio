@@ -14,8 +14,7 @@ using namespace std;
  * en una situación inicial, es decir, los actuadores de tipo switch apagados
  * y los sensores sin ningún valor captado*/
 void inicio(){
-	entornoPonerSensor(5,21,S_temperature,0,"T1");
-	entornoPonerSensor(350,550,S_temperature,0,"T2");
+	entornoPonerSensor(25,25,S_temperature,0,"T1");
 	entornoPonerSensor(250,250,S_smoke,0,"SH");
 	entornoPonerAct_Switch(150,550,false,"CA");
 	entornoBorrarMensaje();
@@ -26,19 +25,26 @@ int main(){
 	entornoPonerEscenario("Winter");
 	inicio();
 	entornoPulsarTecla();
-	entornoPonerSensor(5,21,S_temperature,18.2,"T1");
-	entornoPonerSensor(350,550,S_temperature,10.7,"T2");
+	entornoPonerSensor(25,25,S_temperature,18.2,"T1");
 	entornoPonerAct_Switch(150,550,true,"CA");
 	entornoMostrarMensaje("Calefacción encendida");
 	entornoPausa(3);
+	entornoBorrarMensaje();
+	entornoPonerSensor(25,25,S_temperature,28.2,"T1");
+	entornoPonerAct_Switch(150,550,false,"CA");
+	entornoMostrarMensaje("Calefacción apagada");
+	entornoPulsarTecla();
 	entornoBorrarMensaje();
 	entornoPonerEscenario("Fire");
 	inicio();
 	entornoPausa(1);
 	entornoPonerSensor(250,250,S_smoke,100,"SH");
-	for(int i0=0; i0<4; i0++){
+	entornoMostrarMensaje("Alarma. Alta probabilidad de incendio");
+	for(int i0=0; i0<2; i0++){
+	entornoAlarma();
+	entornoPausa(1);
 	}
-	}
+	entornoBorrarMensaje();
 	entornoTerminar();
 	}
 	return 0;

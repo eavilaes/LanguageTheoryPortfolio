@@ -109,9 +109,9 @@ expr:     ENTERO		{$$=$1;entero=true;datoVar->tipo=0;}
 	| posicion		{}
 	| BOOL			{$$=yylval.c_bool;}
 	| ID			{if(tablaVar->buscar($1,datoVar)){
-						if(datoVar->tipo==0){ $$=datoVar->valor.valor_entero; entero=true;}
-						else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
-						else{errSem=true; cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida o no es un tipo compatible con esa operación." << endl;}
+					if(datoVar->tipo==0){ $$=datoVar->valor.valor_entero; entero=true;}
+					else if(datoVar->tipo==1){ $$=datoVar->valor.valor_real; real=true;}
+					else{errSem=true; cout<<"Error semántico en la línea " << ++n_lineas << ". La variable " << $1 << " no ha sido definida o no es un tipo compatible con esa operación." << endl;}
 					}else if(tablaSens->buscar($1, datoSens)){
 						$$=datoSens->valor;
 					}}
