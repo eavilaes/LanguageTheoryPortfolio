@@ -10,22 +10,21 @@ position	p_Sensor;   string    	msg;
 c = 4; f = 5*c;
 summerTemp = 24.5;
 winterTemp = summerTemp * 0.85;
-p_Sensor = <f,c+16>;
+p_Sensor = <f+5,c+21>;
 msg = "Alarma. Alta probabilidad de incendio";
+
 
 #sensores y actuadores
 temperature indoorTemp p_Sensor "T1";	#sensor de temperatura
-smoke S <250,250> "S2";			#sensor de humo
-light L <500,500> "L1";			#sensor de luminosidad
+smoke S <250,250> "SH";			#sensor de humo
 
-alarm A ;			#alarma sonora
-switch Heat <480,420> "CA";	#calefacción
-switch Lamp <550,250> "La";	#lámpara 
+alarm A;			#alarma sonora
+switch Heat <150,550> "CA";	#calefacción
 message Whatsapp;		#envío de mensajes
 
 %%
-
 #Segunda parte, definición del comportamiento del sistema en diferentes escenarios
+
 scene Winter [
 	start; pause;	
 	indoorTemp	18.2;	#el sensor indoorTemp ha detectado una temperatura de 18.2 grados
@@ -46,6 +45,7 @@ scene Winter [
 	Whatsapp OFF;	
 ];
 
+
 scene Fire [
 	start; pause 1;
 	S	100; #el sensor ha detectado la presencia de humo
@@ -54,8 +54,15 @@ scene Fire [
 		Whatsapp ON msg;			
 		repeat 2 [   #se producirán 4 pitidos en intervalos de 1 segundo
 			A ON;   
-			pause 1;
+			pause 2;
+			repeat 3 [  
+				A ON;   
+				pause 1;
+			];
 		];
 		Whatsapp OFF;	
 	];
+
 ];
+
+
